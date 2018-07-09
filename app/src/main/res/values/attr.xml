@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <declare-styleable name="BaseLoadingView">
+        <attr name="backgroundFill" format="color" />
+        <attr name="backgroundOnAct" format="color" />
+        <attr name="loadingRes" format="reference" />
+        <attr name="noDataRes" format="reference" />
+        <attr name="noNetworkRes" format="reference" />
+    </declare-styleable>
+
+</resources>

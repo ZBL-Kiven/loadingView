@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@mipmap/ic_launcher"
+    android:gravity="center"
+    android:orientation="vertical">
+
+    <com.zj.test.baseloadingview.BaseLoadingView
+        android:id="@+id/bld_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+    </com.zj.test.baseloadingview.BaseLoadingView>
+
+    <Button
+        android:id="@+id/bt_view"
+        android:layout_width="100dp"
+        android:layout_height="45dp"
+        android:layout_gravity="bottom|right"
+        android:text="切换" />
+
+    <CheckBox
+        android:id="@+id/cb_override"
+        android:layout_width="100dp"
+        android:layout_height="45dp"
+        android:layout_gravity="bottom"
+        android:text="覆盖" />
+
+</FrameLayout>
