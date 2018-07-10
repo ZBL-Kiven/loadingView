@@ -1,37 +1,67 @@
 # BaseLoadingView
 
-#### 项目介绍
+### 项目介绍
 一个针对android在数据加载时使用到到的自定义控件，一行代码调用，包括多种模式，多种场景的适配，支持覆盖／悬浮显示，支持动画过渡，支持自定义样式，支持回调处理；
 
-#### 软件架构
-软件架构说明
+### 控件说明
+1、一个小功能控件，使用方面，带状态切换过渡微交互效果，各种情况下都不会显得突兀；
+2、扩展能力强，基本可以满足目前大部分App的阻塞过渡交互需求；
+3、自定义小控件完全开源，旨在节省大家的开发时间，如有不足，望海涵！。
 
 
-#### 安装教程
+### 使用说明
+1、将BaseLoadingView Copy到项目内；
+#### 通过xml使用：
+    <FrameLayout >
 
-1. xxxx
-2. xxxx
-3. xxxx
+        <your content/>
 
-#### 使用说明
+        <.BaseLoadingView
+               android:layout_width="match_parent"
+               android:layout_height="match_parent"
+               app:backgroundFill="@color/colorPrimary"
+               app:backgroundOnAct="#2000"
+               app:loadingRes="@drawable/progressbar_loading"
+               app:noDataRes="@mipmap/base_nodata"
+               app:noNetworkRes="@mipmap/base_nonetwork" />
 
-1. xxxx
-2. xxxx
-3. xxxx
+    <FrameLayout >
 
-#### 参与贡献
+##### backgroundFill :
+###### 使loadingView遮住Content时，loadingView的背景色，默认为0xFFFEFEFE；
+##### backgroundOnAct :
+###### 使用loadingView并要求显示背景时（一般情况为上传图片、带缓存的页面加载等），loadingView的背景色，默认为透明度3-7%的五彩斑斓黑；
+##### loadingRes :
+###### 当调用展示Loading状态时，展示的drawable，建议使用AnimatorDrawable或自定义带动效的drawable；
+##### noDataRes :
+###### 当调用展示没有数据的状态时，展示的drawable；
+##### noNetworkRes :
+###### 当调用展示无网络连接时，展示的drawable；
 
-1. Fork 本项目
-2. 新建 Feat_xxx 分支
-3. 提交代码
-4. 新建 Pull Request
+#### 在Activity中使用（为简洁展示，代码以Kotlin书）：
 
 
-#### 码云特技
+    bld_view?.setRefreshEnable(boolean enable/*是否在无数据或无网络等容错情形出现 "点击页面以重新尝试" 的提示和刷新回调；默认true*/)
 
-1. 使用 Readme\_XXX.md 来支持不同的语言，例如 Readme\_en.md, Readme\_zh.md
-2. 码云官方博客 [blog.gitee.com](https://blog.gitee.com)
-3. 你可以 [https://gitee.com/explore](https://gitee.com/explore) 这个地址来了解码云上的优秀开源项目
-4. [GVP](https://gitee.com/gvp) 全称是码云最有价值开源项目，是码云综合评定出的优秀开源项目
-5. 码云官方提供的使用手册 [http://git.mydoc.io/](http://git.mydoc.io/)
-6. 码云封面人物是一档用来展示码云会员风采的栏目 [https://gitee.com/gitee-stars/](https://gitee.com/gitee-stars/)
+    bld_view?.setLoadingDrawable()
+    bld_view?.setNoDataDrawable()
+    bld_view?.setNoNetworkDrawable()
+
+##### 显示／隐藏：
+    /**
+        *
+        *@param mode: loading/noData/noNetwork/normal 四种模式，其中normal为隐藏；
+        *@param hint:
+        *@param isShowOnAct 是否显示在Activity上，
+        *@param delayDismissTime 延迟消失时间，一般可用于做自定义Toast
+        */
+        blv?.setMode(BaseLoadingView.DisplayMode mode,String hint,boolean isShowOnAct)
+
+        blv?.setMode(DisplayMode mode, String hint, boolean showOnAct, int delayDismissTime)
+
+
+### 初始化无数据或网络失败时的callBack：
+     blv?.setRefreshListener {
+                //todo "call refresh with error"
+                getData();
+     }
