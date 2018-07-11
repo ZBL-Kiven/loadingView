@@ -142,27 +142,6 @@ public class BaseLoadingView extends FrameLayout {
                 onAnimationFraction(animator.getAnimatedFraction());
             }
         });
-        valueAnimator.addListener(new Animator.AnimatorListener() {
-            @Override
-            public void onAnimationStart(Animator animation) {
-
-            }
-
-            @Override
-            public void onAnimationEnd(Animator animation) {
-
-            }
-
-            @Override
-            public void onAnimationCancel(Animator animation) {
-
-            }
-
-            @Override
-            public void onAnimationRepeat(Animator animation) {
-
-            }
-        });
     }
 
     /**
@@ -272,7 +251,8 @@ public class BaseLoadingView extends FrameLayout {
             if (getAlpha() > 0) {
                 float nextAlpha = getAlpha() - offset;
                 setAlpha(Math.max(nextAlpha, 0));
-            } else {
+            }
+            if (getAlpha() == 0) {
                 setBackgroundColor(oldBackgroundColor = curBackgroundColor = 0);
                 setVisibility(GONE);
             }

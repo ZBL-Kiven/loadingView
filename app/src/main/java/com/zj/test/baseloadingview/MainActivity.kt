@@ -3,14 +3,17 @@ package com.zj.test.baseloadingview
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.Button
 import android.widget.CheckBox
+import android.widget.ImageView
 import android.widget.Toast
 import com.zj.test.R
 
 class MainActivity : AppCompatActivity() {
 
     private var bt_view: Button? = null
+    private var iv_bg: ImageView? = null
     private var bld_view: BaseLoadingView? = null
     private var cb_override: CheckBox? = null
     private var isOverrideBg = true
@@ -25,6 +28,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_test)
         bld_view = findViewById(R.id.bld_view)
         bt_view = findViewById(R.id.bt_view)
+        iv_bg = findViewById(R.id.iv_bg)
         cb_override = findViewById<CheckBox>(R.id.cb_override)
 
         hints.put(BaseLoadingView.DisplayMode.loading, "加载中,请稍候...")
