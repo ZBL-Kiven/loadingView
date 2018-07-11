@@ -29,7 +29,7 @@ import java.util.List;
  * Created by zhaojie on 2018/7/3.
  */
 
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "unchecked"})
 public class BaseLoadingView extends FrameLayout {
 
     public BaseLoadingView(@NonNull Context context) {
@@ -60,7 +60,7 @@ public class BaseLoadingView extends FrameLayout {
     private CallRefresh refresh;
     private int bgColor;
     private int bgColorOnAct;
-    private int needBackgroundColor, curBackgroundColor, oldBackgroundColor;
+    private int needBackgroundColor, oldBackgroundColor;
     private int noDataRes = -1;
     private int noNetworkRes = -1;
     private int loadingRes = -1;
@@ -142,6 +142,27 @@ public class BaseLoadingView extends FrameLayout {
                 onAnimationFraction(animator.getAnimatedFraction());
             }
         });
+        valueAnimator.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+                curOffset = 0;
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                onAnimationFraction(1.05f);
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animation) {
+
+            }
+        });
     }
 
     /**
@@ -191,18 +212,25 @@ public class BaseLoadingView extends FrameLayout {
      * @param hint      show something when it`s change a mode;
      */
     public void setMode(DisplayMode mode, String hint, boolean showOnAct) {
-        if (mode == curMode) return;
-        needBackgroundColor = showOnAct ? bgColorOnAct : bgColor;
-        this.curMode = mode;
-        curOffset = 0;
+        boolean isSameMode = mode == curMode;
         if (!TextUtils.isEmpty(hint))
             tvHint.setText(hint);
-        if (valueAnimator.isRunning()) {
-            valueAnimator.cancel();
-        }
-        valueAnimator.start();
-        refreshEnableWithView = (mode == DisplayMode.noData) || (mode == DisplayMode.noNetwork);
+        refreshEnableWithView = (curMode == DisplayMode.noData) || (curMode == DisplayMode.noNetwork);
         tvRefresh.setVisibility(refreshEnableWithView ? View.VISIBLE : View.GONE);
+        boolean isNormalButNoyHide = (mode == DisplayMode.normal && getVisibility() != GONE);
+        if (!isSameMode) {
+            needBackgroundColor = showOnAct ? bgColorOnAct : bgColor;
+        }
+        Log.e("zj ----- ", " mode  = " + mode + "   !isSameMode = " + !isSameMode + "   is!Gone  = " + isNormalButNoyHide + "   showOnAct = " + showOnAct);
+        if (!isSameMode || isNormalButNoyHide) {
+            this.curMode = mode;
+            if (valueAnimator.isRunning()) {
+                valueAnimator.cancel();
+                Log.e("zj ----- ", "canceled");
+            }
+            valueAnimator.start();
+            Log.e("zj ----- ", "start");
+        }
     }
 
     /**
@@ -248,13 +276,16 @@ public class BaseLoadingView extends FrameLayout {
                 }
             }
         } else {
+            Log.e("zj ----- ", "curMode == DisplayMode.normal");
             if (getAlpha() > 0) {
                 float nextAlpha = getAlpha() - offset;
                 setAlpha(Math.max(nextAlpha, 0));
+                Log.e("zj ----- ", "setAlpha = " + Math.max(nextAlpha, 0));
             }
             if (getAlpha() == 0) {
-                setBackgroundColor(oldBackgroundColor = curBackgroundColor = 0);
+                setBackgroundColor(oldBackgroundColor = 0);
                 setVisibility(GONE);
+                Log.e("zj ----- ", "setVisibility(GONE)");
             }
         }
         //drawing hint icons
