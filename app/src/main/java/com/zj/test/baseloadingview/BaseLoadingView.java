@@ -22,8 +22,8 @@ import android.widget.TextView;
 
 import com.zj.test.R;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by zhaojie on 2018/7/3.
@@ -49,10 +49,8 @@ public class BaseLoadingView extends FrameLayout {
     private static final int defaultBgColorOnAct = 0x30000000;
     private static final int defaultAnimationDuration = 400;
 
-    private DisplayMode curMode = DisplayMode.normal;
-    private ValueAnimator valueAnimator;
-    private List<View> disPlayViews;
-
+    private DisplayMode oldMode = DisplayMode.normal;
+    private Map<DisplayMode, Float> disPlayViews;
     private View rootView;
     private View noData, noNetwork;
     private ProgressBar loading;
@@ -68,6 +66,8 @@ public class BaseLoadingView extends FrameLayout {
     private boolean refreshEnable = true;
     private boolean refreshEnableWithView = false;
 
+    private BaseLoadingValueAnimator valueAnimator;
+
     public void setRefreshEnable(boolean enable) {
         this.refreshEnable = enable;
     }
@@ -77,11 +77,13 @@ public class BaseLoadingView extends FrameLayout {
     }
 
     public enum DisplayMode {
-        loading, noData, noNetwork, normal
-    }
+        loading(1), noData(2), noNetwork(3), normal(4);
 
-    private enum ShowOnAct {
-        TRUE, FALSE, NONE
+        private final int value;
+
+        DisplayMode(int value) {
+            this.value = value;
+        }
     }
 
     /**
@@ -94,6 +96,7 @@ public class BaseLoadingView extends FrameLayout {
         setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
+                Log.e("zj --- ", "blv.onclick");
                 if (refreshEnable && refreshEnableWithView && BaseLoadingView.this.refresh != null) {
                     BaseLoadingView.this.refresh.onCallRefresh();
                 }
@@ -128,42 +131,27 @@ public class BaseLoadingView extends FrameLayout {
         loading = f(R.id.blv_pb);
         tvHint = f(R.id.blv_tvHint);
         tvRefresh = f(R.id.blv_tvRefresh);
-        disPlayViews = new ArrayList<>();
-        disPlayViews.add(loading);
-        disPlayViews.add(noData);
-        disPlayViews.add(noNetwork);
+        disPlayViews = new HashMap<>();
         resetUi();
         argbEvaluator = new ArgbEvaluator();
-        valueAnimator = ValueAnimator.ofFloat(0.0f, 1.0f);
-        valueAnimator.setDuration(defaultAnimationDuration);
-        valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animator) {
-                onAnimationFraction(animator.getAnimatedFraction());
-            }
-        });
-        valueAnimator.addListener(new Animator.AnimatorListener() {
-            @Override
-            public void onAnimationStart(Animator animation) {
-                curOffset = 0;
-            }
-
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                onAnimationFraction(1.05f);
-            }
-
-            @Override
-            public void onAnimationCancel(Animator animation) {
-
-            }
-
-            @Override
-            public void onAnimationRepeat(Animator animation) {
-
-            }
-        });
     }
+
+    private BaseLoadingAnimatorListener listener = new BaseLoadingAnimatorListener() {
+
+        @Override
+        public void onDurationChange(ValueAnimator animation, float offset, DisplayMode mode, boolean isShowOnAct) {
+            synchronized (BaseLoadingView.this) {
+                onAnimationFraction(animation.getAnimatedFraction(), offset, mode);
+            }
+        }
+
+        @Override
+        public void onAnimEnd(Animator animation, DisplayMode mode, boolean isShowOnAct) {
+            synchronized (BaseLoadingView.this) {
+                onAnimationFraction(1.0f, 1.0f, mode);
+            }
+        }
+    };
 
     /**
      * @param drawableRes must be an animatorDrawable in progressBar;
@@ -212,24 +200,25 @@ public class BaseLoadingView extends FrameLayout {
      * @param hint      show something when it`s change a mode;
      */
     public void setMode(DisplayMode mode, String hint, boolean showOnAct) {
-        boolean isSameMode = mode == curMode;
+        int hashCode = (showOnAct ? -10 : 10) + mode.value;
+        int curCode = (showOnAct ? -10 : 10) + oldMode.value;
+        oldMode = mode;
+        boolean isSameMode = hashCode == curCode;
         if (!TextUtils.isEmpty(hint))
             tvHint.setText(hint);
-        refreshEnableWithView = (curMode == DisplayMode.noData) || (curMode == DisplayMode.noNetwork);
+        refreshEnableWithView = refreshEnable && (mode == DisplayMode.noData || mode == DisplayMode.noNetwork);
         tvRefresh.setVisibility(refreshEnableWithView ? View.VISIBLE : View.GONE);
-        boolean isNormalButNoyHide = (mode == DisplayMode.normal && getVisibility() != GONE);
+        if (valueAnimator == null) {
+            valueAnimator = new BaseLoadingValueAnimator(listener);
+            valueAnimator.setDuration(defaultAnimationDuration);
+        } else {
+            valueAnimator.end();
+        }
+        disPlayViews.put(mode, 0.0f);
+        //背景样式改变或mode改变，需要重绘背景或样式
         if (!isSameMode) {
             needBackgroundColor = showOnAct ? bgColorOnAct : bgColor;
-        }
-        Log.e("zj ----- ", " mode  = " + mode + "   !isSameMode = " + !isSameMode + "   is!Gone  = " + isNormalButNoyHide + "   showOnAct = " + showOnAct);
-        if (!isSameMode || isNormalButNoyHide) {
-            this.curMode = mode;
-            if (valueAnimator.isRunning()) {
-                valueAnimator.cancel();
-                Log.e("zj ----- ", "canceled");
-            }
-            valueAnimator.start();
-            Log.e("zj ----- ", "start");
+            valueAnimator.start(mode, showOnAct);
         }
     }
 
@@ -251,63 +240,66 @@ public class BaseLoadingView extends FrameLayout {
     }
 
 
-    private float curOffset = 0;
+    private synchronized void onAnimationFraction(float duration, float offset, DisplayMode curMode) {
+        setViews(offset, curMode);
+        setBackground(duration, offset, curMode);
+    }
 
-    private void onAnimationFraction(float animatedFraction) {
-        float offset = animatedFraction - curOffset;
-        //is need drawing background?
-        if (curMode != DisplayMode.normal) {
-            if (getVisibility() != VISIBLE) {
-                setAlpha(0);
-                setVisibility(VISIBLE);
+
+    private void setViews(float offset, DisplayMode curMode) {
+        for (Map.Entry<DisplayMode, Float> entry : disPlayViews.entrySet()) {
+            View curSetView = getDisplayView(entry.getKey());
+            if (curSetView != null) {
+                float curAlpha = entry.getValue();
+                float newAlpha;
+                if (entry.getKey() == curMode) {
+                    //need show
+                    if (curSetView.getVisibility() != VISIBLE) {
+                        curSetView.setVisibility(VISIBLE);
+                        curSetView.setAlpha(0);
+                    }
+                    newAlpha = Math.min(1.0f, Math.max(0.0f, curAlpha) + offset);
+                    curSetView.setAlpha(newAlpha);
+                } else {
+                    //need hide
+                    newAlpha = Math.max(Math.min(1.0f, curAlpha) - offset, 0);
+                    curSetView.setAlpha(newAlpha);
+                    if (newAlpha == 0 && curSetView.getVisibility() != GONE)
+                        curSetView.setVisibility(GONE);
+                }
+                disPlayViews.put(entry.getKey(), newAlpha);
             }
-            if (getAlpha() < 1) {
-                float nextAlpha = getAlpha() + offset;
-                setAlpha(Math.min(nextAlpha, 1f));
+        }
+    }
+
+    private void setBackground(float duration, float offset, DisplayMode curMode) {
+        if (curMode != DisplayMode.normal) {
+            //画背景
+            if (getVisibility() != VISIBLE) {
+                setVisibility(VISIBLE);
+                setAlpha(0);
+            }
+            if (getAlpha() >= 1.0f) {
+                if (oldBackgroundColor != needBackgroundColor) {
+                    int curBackgroundColor = (int) argbEvaluator.evaluate(duration, oldBackgroundColor, needBackgroundColor);
+                    oldBackgroundColor = curBackgroundColor;
+                    setBackgroundColor(curBackgroundColor);
+                }
+            } else {
+                setAlpha(Math.min(1.0f, duration));
                 if (oldBackgroundColor != needBackgroundColor) {
                     setBackgroundColor(needBackgroundColor);
                     oldBackgroundColor = needBackgroundColor;
                 }
-            } else {
-                if (oldBackgroundColor != needBackgroundColor) {
-                    int curBackgroundColor = (int) argbEvaluator.evaluate(animatedFraction, oldBackgroundColor, needBackgroundColor);
-                    oldBackgroundColor = curBackgroundColor;
-                    setBackgroundColor(curBackgroundColor);
-                }
             }
         } else {
-            Log.e("zj ----- ", "curMode == DisplayMode.normal");
-            if (getAlpha() > 0) {
-                float nextAlpha = getAlpha() - offset;
-                setAlpha(Math.max(nextAlpha, 0));
-                Log.e("zj ----- ", "setAlpha = " + Math.max(nextAlpha, 0));
-            }
-            if (getAlpha() == 0) {
+            setAlpha(1.0f - duration);
+            if (getAlpha() <= 0.05f) {
+                setAlpha(0);
                 setBackgroundColor(oldBackgroundColor = 0);
                 setVisibility(GONE);
-                Log.e("zj ----- ", "setVisibility(GONE)");
             }
         }
-        //drawing hint icons
-        View curSetView = getDisplayView(curMode);
-        for (View v : disPlayViews) {
-            if (v != curSetView) {
-                float nextAlpha = v.getAlpha() - offset;
-                if (v.getVisibility() != GONE)
-                    v.setAlpha(Math.max(nextAlpha, 0));
-                if (nextAlpha <= 0 && v.getVisibility() != GONE) {
-                    v.setVisibility(GONE);
-                }
-            } else {
-                if (v != null) {
-                    if (v.getVisibility() != VISIBLE) v.setVisibility(VISIBLE);
-                    float nextAlpha = v.getAlpha() + offset;
-                    if (nextAlpha <= 1)
-                        v.setAlpha(nextAlpha);
-                }
-            }
-        }
-        curOffset = animatedFraction;
     }
 
     private View getDisplayView(DisplayMode mode) {
@@ -324,5 +316,84 @@ public class BaseLoadingView extends FrameLayout {
 
     private <T extends View> T f(int id) {
         return (T) rootView.findViewById(id);
+    }
+
+
+    public static class BaseLoadingValueAnimator extends ValueAnimator {
+
+        private DisplayMode curMode;
+        private boolean isShowOnAct;
+        private float curDuration;
+        public boolean isCancel;
+
+        private BaseLoadingAnimatorListener listener;
+
+        public void start(DisplayMode mode, boolean isShowOnAct) {
+            if (isRunning()) cancel();
+            this.curMode = mode;
+            this.isShowOnAct = isShowOnAct;
+            super.start();
+        }
+
+        @Override
+        public void cancel() {
+            removeAllListeners();
+            if (listener != null) listener = null;
+            isCancel = true;
+            super.cancel();
+        }
+
+        public BaseLoadingValueAnimator(BaseLoadingAnimatorListener l) {
+            this.listener = l;
+            setFloatValues(0.0f, 1.0f);
+            addListener(new AnimatorListener() {
+                @Override
+                public void onAnimationStart(Animator animation) {
+                    if (curDuration != 0) curDuration = 0;
+                }
+
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    curDuration = 0;
+                    if (isCancel) return;
+                    if (listener != null)
+                        listener.onAnimEnd(animation, curMode, isShowOnAct);
+                }
+
+                @Override
+                public void onAnimationCancel(Animator animation) {
+                    curDuration = 0;
+                }
+
+                @Override
+                public void onAnimationRepeat(Animator animation) {
+                    curDuration = 0;
+                }
+            });
+
+            addUpdateListener(new AnimatorUpdateListener() {
+                @Override
+                public void onAnimationUpdate(ValueAnimator animation) {
+                    if (isCancel) return;
+                    if (listener != null) {
+                        float duration = (float) animation.getAnimatedValue();
+                        float offset = duration - curDuration;
+                        listener.onDurationChange(animation, offset, curMode, isShowOnAct);
+                        curDuration = duration;
+                    }
+                }
+            });
+        }
+
+        public void setAnimatorListener(BaseLoadingAnimatorListener listener) {
+            this.listener = listener;
+        }
+    }
+
+    public interface BaseLoadingAnimatorListener {
+
+        void onDurationChange(ValueAnimator animation, float duration, DisplayMode mode, boolean isShowOnAct);
+
+        void onAnimEnd(Animator animation, DisplayMode mode, boolean isShowOnAct);
     }
 }

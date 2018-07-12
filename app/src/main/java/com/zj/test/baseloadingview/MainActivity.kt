@@ -2,8 +2,8 @@ package com.zj.test.baseloadingview
 
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Handler
 import android.util.Log
-import android.view.View
 import android.widget.Button
 import android.widget.CheckBox
 import android.widget.ImageView
@@ -36,6 +36,10 @@ class MainActivity : AppCompatActivity() {
         hints.put(BaseLoadingView.DisplayMode.noNetwork, "网络连接失败")
         hints.put(BaseLoadingView.DisplayMode.normal, "")
 
+        iv_bg?.setOnClickListener({
+            Log.e("zj --- ", "bg.onclick")
+        })
+
         bld_view!!.setRefreshListener {
             if (toast == null) toast = Toast.makeText(this@MainActivity, "", Toast.LENGTH_SHORT)
             toast?.show()
@@ -49,7 +53,6 @@ class MainActivity : AppCompatActivity() {
         }
         cb_override?.setOnCheckedChangeListener({ _, isCheck ->
             isOverrideBg = !isCheck
-
         })
     }
 }
