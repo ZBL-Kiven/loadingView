@@ -8,12 +8,4 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
-    <style name="mProgress_circle">
-        <item name="android:indeterminateDrawable">@drawable/progressbar_loading</item>
-        <item name="android:minWidth">20dp</item>
-        <item name="android:minHeight">20dp</item>
-        <item name="android:maxWidth">100dp</item>
-        <item name="android:maxHeight">100dp</item>
-    </style>
-
 </resources>

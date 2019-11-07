@@ -1,7 +1,6 @@
-package com.zj.test.baseloadingview;
+package com.zj.loading;
 
 import android.animation.Animator;
-import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -14,15 +13,12 @@ import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.zj.test.R;
-
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by zhaojie on 2018/7/3.
+ * @author ZJJ on 2018/7/3.
  */
-
 @SuppressWarnings({"unused", "unchecked"})
 public class BaseLoadingView extends FrameLayout {
 
@@ -41,21 +37,27 @@ public class BaseLoadingView extends FrameLayout {
 
     private static final int defaultAnimationDuration = 400;
 
-    private DisplayMode oldMode = DisplayMode.normal;
+    private DisplayMode oldMode = DisplayMode.none;
     private Map<DisplayMode, Float> disPlayViews;
     private View rootView;
-    private View noData, noNetwork;
+    private View noData, noNetwork, blvChildBg, curBackgroundView;
     private ProgressBar loading;
     private TextView tvHint, tvRefresh;
     private CallRefresh refresh;
-    private int bgColor;
-    private int bgColorOnAct;
-    private int needBackgroundColor, oldBackgroundColor;
+
+    private Drawable bg, bgOnContent, needBackground, oldBackground;
     private int noDataRes = -1;
     private int noNetworkRes = -1;
     private int loadingRes = -1;
     private int hintTextColor, refreshTextColor;
-    private ArgbEvaluator argbEvaluator;
+
+    private boolean showOnContentDefault;
+
+    private String loadingHint = "";
+    private String noDataHint = "";
+    private String networkErrorHint = "";
+    private String refreshHint = "";
+
     private boolean refreshEnable = true;
     private boolean refreshEnableWithView = false;
 
@@ -70,7 +72,7 @@ public class BaseLoadingView extends FrameLayout {
     }
 
     public enum DisplayMode {
-        loading(1), noData(2), noNetwork(3), normal(4);
+        none(0), loading(1), noData(2), noNetwork(3), normal(4);
 
         private final int value;
 
@@ -99,52 +101,66 @@ public class BaseLoadingView extends FrameLayout {
     private void init(Context context, AttributeSet attrs) {
         if (attrs != null) {
             TypedArray array = context.obtainStyledAttributes(attrs, R.styleable.BaseLoadingView);
-            if (array != null) {
-                try {
-                    bgColor = array.getColor(R.styleable.BaseLoadingView_backgroundFill, context.getResources().getColor(R.color.colorBackground));
-                    bgColorOnAct = array.getColor(R.styleable.BaseLoadingView_backgroundOnAct, context.getResources().getColor(R.color.colorBackgroundFloat));
-                    noDataRes = array.getResourceId(R.styleable.BaseLoadingView_noDataRes, -1);
-                    noNetworkRes = array.getResourceId(R.styleable.BaseLoadingView_noNetworkRes, -1);
-                    loadingRes = array.getResourceId(R.styleable.BaseLoadingView_loadingRes, -1);
-                    hintTextColor = array.getColor(R.styleable.BaseLoadingView_loadingRes, -1);
-                    refreshTextColor = array.getColor(R.styleable.BaseLoadingView_loadingRes, -1);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                } finally {
-                    array.recycle();
-                }
+            try {
+                bg = array.getDrawable(R.styleable.BaseLoadingView_backgroundFill);
+                bgOnContent = array.getDrawable(R.styleable.BaseLoadingView_backgroundUnderTheContent);
+                noDataRes = array.getResourceId(R.styleable.BaseLoadingView_noDataRes, -1);
+                noNetworkRes = array.getResourceId(R.styleable.BaseLoadingView_noNetworkRes, -1);
+                loadingRes = array.getResourceId(R.styleable.BaseLoadingView_loadingRes, -1);
+                hintTextColor = array.getColor(R.styleable.BaseLoadingView_hintColor, -1);
+                refreshTextColor = array.getColor(R.styleable.BaseLoadingView_refreshTextColor, -1);
+                loadingHint = array.getString(R.styleable.BaseLoadingView_loadingText);
+                noDataHint = array.getString(R.styleable.BaseLoadingView_noDataText);
+                networkErrorHint = array.getString(R.styleable.BaseLoadingView_networkErrorText);
+                refreshHint = array.getString(R.styleable.BaseLoadingView_refreshText);
+                showOnContentDefault = array.getBoolean(R.styleable.BaseLoadingView_shownUnderTheContentDefault, false);
+                refreshEnable = array.getBoolean(R.styleable.BaseLoadingView_refreshEnable, true);
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                array.recycle();
             }
         }
         initView(context);
     }
 
     private void initView(Context context) {
-        rootView = inflate(context, R.layout.base_loading_view, this);
+        rootView = inflate(context, R.layout.loading_view, this);
         noData = f(R.id.blv_vNoData);
         noNetwork = f(R.id.blv_vNoNetwork);
         loading = f(R.id.blv_pb);
         tvHint = f(R.id.blv_tvHint);
         tvRefresh = f(R.id.blv_tvRefresh);
-        disPlayViews = new HashMap<>();
-        if (hintTextColor > 0)
+        blvChildBg = f(R.id.blv_child_bg);
+        if (refreshHint != null && !refreshHint.isEmpty()) tvRefresh.setText(refreshHint);
+        if (hintTextColor != 0)
             tvHint.setTextColor(hintTextColor);
-        if (refreshTextColor > 0)
+        if (refreshTextColor != 0)
             tvRefresh.setTextColor(refreshTextColor);
+        disPlayViews = new HashMap<>();
+        disPlayViews.put(DisplayMode.loading, 0.0f);
+        tvHint.setText(loadingHint);
         resetUi();
-        argbEvaluator = new ArgbEvaluator();
+        resetBackground(showOnContentDefault);
+    }
+
+    private void resetBackground(boolean showOnContent) {
+        curBackgroundView = showOnContent ? blvChildBg : this;
+        blvChildBg.setBackground(showOnContent ? bgOnContent : null);
+        setBackground(showOnContent ? null : bg);
     }
 
     private BaseLoadingAnimatorListener listener = new BaseLoadingAnimatorListener() {
 
         @Override
-        public void onDurationChange(ValueAnimator animation, float offset, DisplayMode mode, boolean isShowOnAct) {
+        public void onDurationChange(ValueAnimator animation, float offset, DisplayMode mode, boolean isShowOnContent) {
             synchronized (BaseLoadingView.this) {
                 onAnimationFraction(animation.getAnimatedFraction(), offset, mode);
             }
         }
 
         @Override
-        public void onAnimEnd(Animator animation, DisplayMode mode, boolean isShowOnAct) {
+        public void onAnimEnd(Animator animation, DisplayMode mode, boolean isShowOnContent) {
             synchronized (BaseLoadingView.this) {
                 onAnimationFraction(1.0f, 1.0f, mode);
             }
@@ -175,7 +191,7 @@ public class BaseLoadingView extends FrameLayout {
     //reset loading/noData/noNetwork drawable
     private void resetUi() {
         if (loadingRes > 0) {
-            Drawable drawable = getContext().getResources().getDrawable(loadingRes);
+            Drawable drawable = getContext().getDrawable(loadingRes);
             if (drawable != null) {
                 Rect rect = loading.getIndeterminateDrawable().getBounds();
                 drawable.setBounds(rect);
@@ -190,23 +206,35 @@ public class BaseLoadingView extends FrameLayout {
         }
     }
 
+
+    public void setMode(DisplayMode mode) {
+        setMode(mode, "");
+    }
+
+    public void setMode(DisplayMode mode, String hint) {
+        setMode(mode, hint, null);
+    }
+
     /**
      * just call setMode after this View got,
      *
-     * @param mode      the current display mode you need;
-     * @param showOnAct is showing on content? or hide content?
-     * @param hint      show something when it`s change a mode;
+     * @param mode          the current display mode you need;
+     * @param showOnContent is showing on content? or hide content?
+     * @param hint          show something when it`s change a mode;
      */
-    public void setMode(DisplayMode mode, String hint, boolean showOnAct) {
-        int hashCode = (showOnAct ? -10 : 10) + mode.value;
-        int curCode = (showOnAct ? -10 : 10) + oldMode.value;
+    public void setMode(DisplayMode mode, String hint, Boolean showOnContent) {
+        if (showOnContent == null) showOnContent = showOnContentDefault;
+        if (mode == DisplayMode.none) mode = DisplayMode.normal;
+        int newCode = (showOnContent ? -10 : 10) + mode.value;
+        int oldCode = (showOnContent ? -10 : 10) + oldMode.value;
         oldMode = mode;
-        boolean isSameMode = hashCode == curCode;
-
+        boolean isSameMode = newCode == oldCode;
         String hintText = (!TextUtils.isEmpty(hint) ? hint : getHintString(mode));
-        tvHint.setText(hint);
+        if (hintText != null) {
+            tvHint.setText(hintText);
+        }
         refreshEnableWithView = refreshEnable && (mode == DisplayMode.noData || mode == DisplayMode.noNetwork);
-        tvRefresh.setVisibility(refreshEnableWithView ? View.VISIBLE : View.GONE);
+        tvRefresh.setVisibility(refreshEnableWithView ? View.VISIBLE : View.INVISIBLE);
         if (valueAnimator == null) {
             valueAnimator = new BaseLoadingValueAnimator(listener);
             valueAnimator.setDuration(defaultAnimationDuration);
@@ -214,35 +242,27 @@ public class BaseLoadingView extends FrameLayout {
             valueAnimator.end();
         }
         disPlayViews.put(mode, 0.0f);
-        //背景样式改变或mode改变，需要重绘背景或样式
         if (!isSameMode) {
-            needBackgroundColor = showOnAct ? bgColorOnAct : bgColor;
-            valueAnimator.start(mode, showOnAct);
+            resetBackground(showOnContent);
+            needBackground = showOnContent ? bgOnContent : bg;
+            valueAnimator.start(mode, showOnContent);
         }
     }
 
     private String getHintString(DisplayMode mode) {
         switch (mode) {
             case loading:
-                return getContext().getResources().getString(R.string.loading);
+                return (loadingHint == null || loadingHint.isEmpty()) ? "loading" : loadingHint;
             case noData:
-                return getContext().getResources().getString(R.string.noData);
+                return (noDataHint == null || noDataHint.isEmpty()) ? "no data found" : noDataHint;
             case noNetwork:
-                return getContext().getResources().getString(R.string.noNetwork);
+                return (networkErrorHint == null || networkErrorHint.isEmpty()) ? "no network access" : networkErrorHint;
             default:
                 return "";
         }
     }
 
-    /**
-     * just call setMode after this View got,
-     *
-     * @param mode      the current display mode you need;
-     * @param showOnAct is showing on content? or hide content?
-     * @param hint      show something when it`s change a mode;
-     */
-    public void setMode(DisplayMode mode, String hint, boolean showOnAct, int delayDismissTime) {
-        setMode(mode, hint, showOnAct);
+    public void hideDelay(int delayDismissTime) {
         postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -286,29 +306,24 @@ public class BaseLoadingView extends FrameLayout {
 
     private void setBackground(float duration, float offset, DisplayMode curMode) {
         if (curMode != DisplayMode.normal) {
-            //画背景
             if (getVisibility() != VISIBLE) {
-                setVisibility(VISIBLE);
                 setAlpha(0);
+                setVisibility(VISIBLE);
+            }
+            if (oldBackground != needBackground) {
+                curBackgroundView.setBackground(needBackground);
+                oldBackground = needBackground;
             }
             if (getAlpha() >= 1.0f) {
-                if (oldBackgroundColor != needBackgroundColor) {
-                    int curBackgroundColor = (int) argbEvaluator.evaluate(duration, oldBackgroundColor, needBackgroundColor);
-                    oldBackgroundColor = curBackgroundColor;
-                    setBackgroundColor(curBackgroundColor);
-                }
+                setAlpha(1);
             } else {
                 setAlpha(Math.min(1.0f, duration));
-                if (oldBackgroundColor != needBackgroundColor) {
-                    setBackgroundColor(needBackgroundColor);
-                    oldBackgroundColor = needBackgroundColor;
-                }
             }
         } else {
             setAlpha(1.0f - duration);
             if (getAlpha() <= 0.05f) {
                 setAlpha(0);
-                setBackgroundColor(oldBackgroundColor = 0);
+                setBackground(oldBackground = null);
                 setVisibility(GONE);
             }
         }
@@ -331,20 +346,19 @@ public class BaseLoadingView extends FrameLayout {
     }
 
 
-    @SuppressWarnings("WeakerAccess")
     public static class BaseLoadingValueAnimator extends ValueAnimator {
 
         private DisplayMode curMode;
-        private boolean isShowOnAct;
+        private boolean isShowOnContent;
         private float curDuration;
-        public boolean isCancel;
+        private boolean isCancel;
 
         private BaseLoadingAnimatorListener listener;
 
-        public void start(DisplayMode mode, boolean isShowOnAct) {
+        private void start(DisplayMode mode, boolean isShowOnContent) {
             if (isRunning()) cancel();
             this.curMode = mode;
-            this.isShowOnAct = isShowOnAct;
+            this.isShowOnContent = isShowOnContent;
             super.start();
         }
 
@@ -356,7 +370,7 @@ public class BaseLoadingView extends FrameLayout {
             super.cancel();
         }
 
-        public BaseLoadingValueAnimator(BaseLoadingAnimatorListener l) {
+        private BaseLoadingValueAnimator(BaseLoadingAnimatorListener l) {
             this.listener = l;
             setFloatValues(0.0f, 1.0f);
             addListener(new AnimatorListener() {
@@ -370,7 +384,7 @@ public class BaseLoadingView extends FrameLayout {
                     curDuration = 0;
                     if (isCancel) return;
                     if (listener != null)
-                        listener.onAnimEnd(animation, curMode, isShowOnAct);
+                        listener.onAnimEnd(animation, curMode, isShowOnContent);
                 }
 
                 @Override
@@ -391,7 +405,7 @@ public class BaseLoadingView extends FrameLayout {
                     if (listener != null) {
                         float duration = (float) animation.getAnimatedValue();
                         float offset = duration - curDuration;
-                        listener.onDurationChange(animation, offset, curMode, isShowOnAct);
+                        listener.onDurationChange(animation, offset, curMode, isShowOnContent);
                         curDuration = duration;
                     }
                 }
@@ -405,8 +419,8 @@ public class BaseLoadingView extends FrameLayout {
 
     public interface BaseLoadingAnimatorListener {
 
-        void onDurationChange(ValueAnimator animation, float duration, DisplayMode mode, boolean isShowOnAct);
+        void onDurationChange(ValueAnimator animation, float duration, DisplayMode mode, boolean isShowOnContent);
 
-        void onAnimEnd(Animator animation, DisplayMode mode, boolean isShowOnAct);
+        void onAnimEnd(Animator animation, DisplayMode mode, boolean isShowOnContent);
     }
 }
