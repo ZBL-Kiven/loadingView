@@ -49,15 +49,16 @@ BaseLoadingView 已发布至私有仓库，你可以使用如下方式安装它�
 
 > by dependencies:
 
-```kotlin
+```
 repo{
      maven (url = "https://nexus.i-mocca.com/repository/cf_core")
 }
 
 implementation 'com.cf.core:loading:+'
+
 ```
 
-> by [aar](https://nexus.i-mocca.com/repository/cf_core/	com/cf/core/loading/1.0.0/loading-1.0.0.aar) import:
+> by [aar](https://nexus.i-mocca.com/repository/cf_core/com/cf/core/loading/1.0.0/loading-1.0.0.aar) import:
 
 ```
 copy the aar file in your app libs to use
