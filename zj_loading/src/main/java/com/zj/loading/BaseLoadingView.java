@@ -80,6 +80,7 @@ public class BaseLoadingView extends FrameLayout {
         private final int value;
         public long delay;
 
+        @SuppressWarnings("UnusedReturnValue")
         public DisplayMode delay(long mills) {
             this.delay = mills;
             return this;
