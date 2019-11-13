@@ -10,7 +10,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
@@ -40,7 +39,7 @@ public class BaseLoadingView extends FrameLayout {
 
     private static final int defaultAnimationDuration = 400;
 
-    private DisplayMode oldMode = DisplayMode.none;
+    private DisplayMode oldMode = DisplayMode.NONE;
     private Map<DisplayMode, Float> disPlayViews;
     private View rootView;
     private View noData, noNetwork, blvChildBg, curBackgroundView;
@@ -76,10 +75,10 @@ public class BaseLoadingView extends FrameLayout {
     }
 
     public enum DisplayMode {
-        none(0), loading(1), noData(2), noNetwork(3), normal(4);
+        NONE(0), LOADING(1), NO_DATA(2), NO_NETWORK(3), NORMAL(4);
 
         private final int value;
-        private long delay;
+        public long delay;
 
         public DisplayMode delay(long mills) {
             this.delay = mills;
@@ -96,7 +95,7 @@ public class BaseLoadingView extends FrameLayout {
     }
 
     /**
-     * when you set mode as noData/noNetwork ,
+     * when you set mode as NO_DATA/NO_NETWORK ,
      * you can get the event when this view was clicked
      * and you can refresh content  when the  "onCallRefresh()" callback
      */
@@ -153,7 +152,7 @@ public class BaseLoadingView extends FrameLayout {
         if (refreshTextColor != 0)
             tvRefresh.setTextColor(refreshTextColor);
         disPlayViews = new HashMap<>();
-        disPlayViews.put(DisplayMode.loading, 0.0f);
+        disPlayViews.put(DisplayMode.LOADING, 0.0f);
         tvHint.setText(loadingHint);
         resetUi();
         resetBackground(showOnContentDefault);
@@ -203,7 +202,7 @@ public class BaseLoadingView extends FrameLayout {
         return this;
     }
 
-    //reset loading/noData/noNetwork drawable
+    //reset LOADING/NO_DATA/NO_NETWORK drawable
     private void resetUi() {
         if (loadingRes > 0) {
             Drawable drawable = getContext().getDrawable(loadingRes);
@@ -244,17 +243,18 @@ public class BaseLoadingView extends FrameLayout {
 
     public void setMode(final DisplayMode mode, final String hint, final String subHint, final Boolean showOnContent) {
         handler.removeCallbacksAndMessages(null);
-        Log.e("----- ", "" + mode.delay);
-        if (mode.delay > 0) {
+        long delay = mode.delay;
+        if (delay > 0) {
             handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     BaseLoadingView.this.setLoadingMode(mode, hint, subHint, showOnContent);
                 }
-            }, mode.delay);
+            }, delay);
         } else {
             setLoadingMode(mode, hint, subHint, showOnContent);
         }
+        mode.delay(0);
     }
 
     /**
@@ -266,7 +266,7 @@ public class BaseLoadingView extends FrameLayout {
      */
     private void setLoadingMode(DisplayMode mode, String hint, String subHint, Boolean showOnContent) {
         if (showOnContent == null) showOnContent = showOnContentDefault;
-        if (mode == DisplayMode.none) mode = DisplayMode.normal;
+        if (mode == DisplayMode.NONE) mode = DisplayMode.NORMAL;
         int newCode = (showOnContent ? -10 : 10) + mode.value;
         int oldCode = (showOnContent ? -10 : 10) + oldMode.value;
         oldMode = mode;
@@ -275,7 +275,7 @@ public class BaseLoadingView extends FrameLayout {
         if (hintText != null) {
             tvHint.setText(hintText);
         }
-        refreshEnableWithView = refreshEnable && (mode == DisplayMode.noData || mode == DisplayMode.noNetwork);
+        refreshEnableWithView = refreshEnable && (mode == DisplayMode.NO_DATA || mode == DisplayMode.NO_NETWORK);
         tvRefresh.setVisibility(refreshEnableWithView ? View.VISIBLE : View.INVISIBLE);
         if (refreshEnableWithView) {
             tvRefresh.setText(TextUtils.isEmpty(subHint) ? refreshHint : subHint);
@@ -296,11 +296,11 @@ public class BaseLoadingView extends FrameLayout {
 
     private String getHintString(DisplayMode mode) {
         switch (mode) {
-            case loading:
-                return (loadingHint == null || loadingHint.isEmpty()) ? "loading" : loadingHint;
-            case noData:
+            case LOADING:
+                return (loadingHint == null || loadingHint.isEmpty()) ? "LOADING" : loadingHint;
+            case NO_DATA:
                 return (noDataHint == null || noDataHint.isEmpty()) ? "no data found" : noDataHint;
-            case noNetwork:
+            case NO_NETWORK:
                 return (networkErrorHint == null || networkErrorHint.isEmpty()) ? "no network access" : networkErrorHint;
             default:
                 return "";
@@ -340,7 +340,7 @@ public class BaseLoadingView extends FrameLayout {
     }
 
     private void setBackground(float duration, float offset, DisplayMode curMode) {
-        if (curMode != DisplayMode.normal) {
+        if (curMode != DisplayMode.NORMAL) {
             if (getVisibility() != VISIBLE) {
                 setAlpha(0);
                 setVisibility(VISIBLE);
@@ -366,11 +366,11 @@ public class BaseLoadingView extends FrameLayout {
 
     private View getDisplayView(DisplayMode mode) {
         switch (mode) {
-            case noData:
+            case NO_DATA:
                 return noData;
-            case loading:
+            case LOADING:
                 return loading;
-            case noNetwork:
+            case NO_NETWORK:
                 return noNetwork;
         }
         return null;

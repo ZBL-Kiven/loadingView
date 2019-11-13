@@ -31,10 +31,10 @@ class MainActivity : AppCompatActivity() {
         ivBg = findViewById(R.id.iv_bg)
         cbOverride = findViewById<CheckBox>(R.id.cb_override)
 
-        hints[BaseLoadingView.DisplayMode.loading] = getString(R.string.loading)
-        hints[BaseLoadingView.DisplayMode.noData] = getString(R.string.noData)
-        hints[BaseLoadingView.DisplayMode.noNetwork] = getString(R.string.noNetwork)
-        hints[BaseLoadingView.DisplayMode.normal] = ""
+        hints[BaseLoadingView.DisplayMode.LOADING] = getString(R.string.loading)
+        hints[BaseLoadingView.DisplayMode.NO_DATA] = getString(R.string.noData)
+        hints[BaseLoadingView.DisplayMode.NO_NETWORK] = getString(R.string.noNetwork)
+        hints[BaseLoadingView.DisplayMode.NORMAL] = ""
 
         ivBg?.setOnClickListener {
             Log.e("zj --- ", "bg.onclick")

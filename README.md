@@ -142,6 +142,10 @@ bld_view?.setNoDataDrawable()
 bld_view?.setNoNetworkDrawable()
 ...  
 
+@version 1.0.1
+//新增延迟生效。延迟效果可在未生效时被新的状态或新的延时取缔。
+blv?.setMode(DisplayMode.delay(Long))
+
 ```
 ### Contributing
 
