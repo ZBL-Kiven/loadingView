@@ -6,8 +6,11 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
@@ -44,6 +47,7 @@ public class BaseLoadingView extends FrameLayout {
     private ProgressBar loading;
     private TextView tvHint, tvRefresh;
     private CallRefresh refresh;
+    private Handler handler;
 
     private Drawable bg, bgOnContent, needBackground, oldBackground;
     private int noDataRes = -1;
@@ -75,6 +79,16 @@ public class BaseLoadingView extends FrameLayout {
         none(0), loading(1), noData(2), noNetwork(3), normal(4);
 
         private final int value;
+        private long delay;
+
+        public DisplayMode delay(long mills) {
+            this.delay = mills;
+            return this;
+        }
+
+        public void reset() {
+            this.delay = 0L;
+        }
 
         DisplayMode(int value) {
             this.value = value;
@@ -122,6 +136,7 @@ public class BaseLoadingView extends FrameLayout {
             }
         }
         initView(context);
+        handler = new Handler(Looper.getMainLooper());
     }
 
     private void initView(Context context) {
@@ -208,11 +223,38 @@ public class BaseLoadingView extends FrameLayout {
 
 
     public void setMode(DisplayMode mode) {
-        setMode(mode, "");
+        setMode(mode, "", "");
     }
 
     public void setMode(DisplayMode mode, String hint) {
-        setMode(mode, hint, null);
+        setMode(mode, hint, "");
+    }
+
+    public void setMode(DisplayMode mode, boolean showOnContent) {
+        setMode(mode, "", "", showOnContent);
+    }
+
+    public void setMode(DisplayMode mode, String hint, String subHint) {
+        setMode(mode, hint, subHint, null);
+    }
+
+    public void setMode(DisplayMode mode, String hint, boolean showOnContent) {
+        setMode(mode, hint, "", showOnContent);
+    }
+
+    public void setMode(final DisplayMode mode, final String hint, final String subHint, final Boolean showOnContent) {
+        handler.removeCallbacksAndMessages(null);
+        Log.e("----- ", "" + mode.delay);
+        if (mode.delay > 0) {
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    BaseLoadingView.this.setLoadingMode(mode, hint, subHint, showOnContent);
+                }
+            }, mode.delay);
+        } else {
+            setLoadingMode(mode, hint, subHint, showOnContent);
+        }
     }
 
     /**
@@ -222,7 +264,7 @@ public class BaseLoadingView extends FrameLayout {
      * @param showOnContent is showing on content? or hide content?
      * @param hint          show something when it`s change a mode;
      */
-    public void setMode(DisplayMode mode, String hint, Boolean showOnContent) {
+    private void setLoadingMode(DisplayMode mode, String hint, String subHint, Boolean showOnContent) {
         if (showOnContent == null) showOnContent = showOnContentDefault;
         if (mode == DisplayMode.none) mode = DisplayMode.normal;
         int newCode = (showOnContent ? -10 : 10) + mode.value;
@@ -235,6 +277,9 @@ public class BaseLoadingView extends FrameLayout {
         }
         refreshEnableWithView = refreshEnable && (mode == DisplayMode.noData || mode == DisplayMode.noNetwork);
         tvRefresh.setVisibility(refreshEnableWithView ? View.VISIBLE : View.INVISIBLE);
+        if (refreshEnableWithView) {
+            tvRefresh.setText(TextUtils.isEmpty(subHint) ? refreshHint : subHint);
+        }
         if (valueAnimator == null) {
             valueAnimator = new BaseLoadingValueAnimator(listener);
             valueAnimator.setDuration(defaultAnimationDuration);
@@ -261,16 +306,6 @@ public class BaseLoadingView extends FrameLayout {
                 return "";
         }
     }
-
-    public void hideDelay(int delayDismissTime) {
-        postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                setMode(DisplayMode.normal, "", false);
-            }
-        }, delayDismissTime);
-    }
-
 
     private synchronized void onAnimationFraction(float duration, float offset, DisplayMode curMode) {
         setViews(offset, curMode);

@@ -47,7 +47,7 @@ class MainActivity : AppCompatActivity() {
         }
         btView?.setOnClickListener {
             val mode = BaseLoadingView.DisplayMode.values()[index]
-            blvView!!.setMode(mode, hints[mode], isOverrideBg)
+            blvView?.setMode(mode, hints[mode], isOverrideBg)
             index++
             if (index == BaseLoadingView.DisplayMode.values().size) index = 0
         }
