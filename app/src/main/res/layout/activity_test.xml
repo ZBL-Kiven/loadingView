@@ -33,7 +33,7 @@
             android:id="@+id/bt_view"
             android:layout_width="100dp"
             android:layout_height="45dp"
-            android:layout_gravity="bottom|right"
+            android:layout_gravity="bottom|end"
             android:text="change"/>
 
     <CheckBox
@@ -41,6 +41,6 @@
             android:layout_width="100dp"
             android:layout_height="45dp"
             android:layout_gravity="bottom"
-            android:text="is Overlay"/>
+            android:text="isOverlay"/>
 
 </FrameLayout>
