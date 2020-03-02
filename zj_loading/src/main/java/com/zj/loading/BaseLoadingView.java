@@ -46,6 +46,7 @@ public class BaseLoadingView extends FrameLayout {
     private ProgressBar loading;
     private TextView tvHint, tvRefresh;
     private CallRefresh refresh;
+    private OnMode onMode;
     private Handler handler;
 
     private Drawable bg, bgOnContent, needBackground, oldBackground;
@@ -73,6 +74,11 @@ public class BaseLoadingView extends FrameLayout {
     public interface CallRefresh {
         void onCallRefresh();
     }
+
+    public interface OnMode {
+        void onModeChange(DisplayMode mode);
+    }
+
 
     public enum DisplayMode {
         NONE(0), LOADING(1), NO_DATA(2), NO_NETWORK(3), NORMAL(4);
@@ -110,6 +116,13 @@ public class BaseLoadingView extends FrameLayout {
                 }
             }
         });
+    }
+
+    /**
+     * set a mode changed listener
+     */
+    public void setOnModeListener(OnMode mode) {
+        this.onMode = mode;
     }
 
     private void init(Context context, AttributeSet attrs) {
@@ -293,6 +306,9 @@ public class BaseLoadingView extends FrameLayout {
             needBackground = showOnContent ? bgOnContent : bg;
             valueAnimator.start(mode, showOnContent);
         }
+        if (onMode != null) {
+            onMode.onModeChange(mode);
+        }
     }
 
     private String getHintString(DisplayMode mode) {
@@ -312,7 +328,6 @@ public class BaseLoadingView extends FrameLayout {
         setViews(offset, curMode);
         setBackground(duration, offset, curMode);
     }
-
 
     private void setViews(float offset, DisplayMode curMode) {
         for (Map.Entry<DisplayMode, Float> entry : disPlayViews.entrySet()) {
