@@ -42,20 +42,20 @@ public class BaseLoadingView extends FrameLayout {
     private DisplayMode oldMode = DisplayMode.NONE;
     private Map<DisplayMode, Float> disPlayViews;
     private View rootView;
-    private View noData, noNetwork, blvChildBg, curBackgroundView;
+    private View noData, noNetwork, blvChildBg;
     private ProgressBar loading;
     private TextView tvHint, tvRefresh;
-    private CallRefresh refresh;
-    private OnMode onMode;
+    private OnTapListener refresh;
+    private OnChangeListener onMode;
     private Handler handler;
 
-    private Drawable bg, bgOnContent, needBackground, oldBackground;
+    private Drawable bg, bgOnContent, oldBackground, needBackground;
     private int noDataRes = -1;
     private int noNetworkRes = -1;
     private int loadingRes = -1;
     private int hintTextColor, refreshTextColor;
 
-    private boolean showOnContentDefault;
+    private int shownModeDefault = 0;
 
     private String loadingHint = "";
     private String noDataHint = "";
@@ -71,34 +71,16 @@ public class BaseLoadingView extends FrameLayout {
         this.refreshEnable = enable;
     }
 
-    public interface CallRefresh {
-        void onCallRefresh();
-    }
-
-    public interface OnMode {
-        void onModeChange(DisplayMode mode);
-    }
-
-
-    public enum DisplayMode {
-        NONE(0), LOADING(1), NO_DATA(2), NO_NETWORK(3), NORMAL(4);
-
-        private final int value;
-        public long delay;
-
-        @SuppressWarnings("UnusedReturnValue")
-        public DisplayMode delay(long mills) {
-            this.delay = mills;
-            return this;
+    private OverLapMode getMode(int mode) {
+        switch (mode) {
+            case 0:
+                return OverLapMode.OVERLAP;
+            case 1:
+                return OverLapMode.FLOATING;
+            case 2:
+                return OverLapMode.FO;
         }
-
-        public void reset() {
-            this.delay = 0L;
-        }
-
-        DisplayMode(int value) {
-            this.value = value;
-        }
+        return OverLapMode.OVERLAP;
     }
 
     /**
@@ -106,13 +88,13 @@ public class BaseLoadingView extends FrameLayout {
      * you can get the event when this view was clicked
      * and you can refresh content  when the  "onCallRefresh()" callback
      */
-    public void setRefreshListener(CallRefresh refresh) {
+    public void setOnTapListener(OnTapListener refresh) {
         this.refresh = refresh;
         setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (refreshEnable && refreshEnableWithView && BaseLoadingView.this.refresh != null) {
-                    BaseLoadingView.this.refresh.onCallRefresh();
+                    BaseLoadingView.this.refresh.onTap();
                 }
             }
         });
@@ -121,7 +103,7 @@ public class BaseLoadingView extends FrameLayout {
     /**
      * set a mode changed listener
      */
-    public void setOnModeListener(OnMode mode) {
+    public void setOnChangeListener(OnChangeListener mode) {
         this.onMode = mode;
     }
 
@@ -140,7 +122,7 @@ public class BaseLoadingView extends FrameLayout {
                 noDataHint = array.getString(R.styleable.BaseLoadingView_noDataText);
                 networkErrorHint = array.getString(R.styleable.BaseLoadingView_networkErrorText);
                 refreshHint = array.getString(R.styleable.BaseLoadingView_refreshText);
-                showOnContentDefault = array.getBoolean(R.styleable.BaseLoadingView_shownUnderTheContentDefault, false);
+                shownModeDefault = array.getInt(R.styleable.BaseLoadingView_shownMode, 0);
                 refreshEnable = array.getBoolean(R.styleable.BaseLoadingView_refreshEnable, true);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -169,28 +151,32 @@ public class BaseLoadingView extends FrameLayout {
         disPlayViews.put(DisplayMode.LOADING, 0.0f);
         tvHint.setText(loadingHint);
         resetUi();
-        resetBackground(showOnContentDefault);
+        OverLapMode defaultMode = getMode(shownModeDefault);
+        resetBackground(defaultMode);
     }
 
-    private void resetBackground(boolean showOnContent) {
-        curBackgroundView = showOnContent ? blvChildBg : this;
-        blvChildBg.setBackground(showOnContent ? bgOnContent : null);
-        setBackground(showOnContent ? null : bg);
+    private void resetBackground(OverLapMode mode) {
+//        ArrayList<View> lst = new ArrayList<>();
+//        if (mode == OverLapMode.OVERLAP || mode == OverLapMode.FO) lst.add(this);
+//        if (mode == OverLapMode.FLOATING || mode == OverLapMode.FO) lst.add(blvChildBg);
+//        curBackgrounds = lst;
+        setBackground((mode == OverLapMode.OVERLAP || mode == OverLapMode.FO) ? bg : null);
+        blvChildBg.setBackground((mode == OverLapMode.FLOATING || mode == OverLapMode.FO) ? bgOnContent : null);
     }
 
     private BaseLoadingAnimatorListener listener = new BaseLoadingAnimatorListener() {
 
         @Override
-        public void onDurationChange(ValueAnimator animation, float offset, DisplayMode mode, boolean isShowOnContent) {
+        public void onDurationChange(ValueAnimator animation, float offset, DisplayMode mode, OverLapMode overLapMode) {
             synchronized (BaseLoadingView.this) {
-                onAnimationFraction(animation.getAnimatedFraction(), offset, mode);
+                onAnimationFraction(animation.getAnimatedFraction(), offset, mode, overLapMode);
             }
         }
 
         @Override
-        public void onAnimEnd(Animator animation, DisplayMode mode, boolean isShowOnContent) {
+        public void onAnimEnd(Animator animation, DisplayMode mode, OverLapMode overLapMode) {
             synchronized (BaseLoadingView.this) {
-                onAnimationFraction(1.0f, 1.0f, mode);
+                onAnimationFraction(1.0f, 1.0f, mode, overLapMode);
             }
         }
     };
@@ -243,46 +229,46 @@ public class BaseLoadingView extends FrameLayout {
         setMode(mode, hint, "");
     }
 
-    public void setMode(DisplayMode mode, boolean showOnContent) {
-        setMode(mode, "", "", showOnContent);
+    public void setMode(DisplayMode mode, OverLapMode overlapMode) {
+        setMode(mode, "", "", overlapMode);
     }
 
     public void setMode(DisplayMode mode, String hint, String subHint) {
         setMode(mode, hint, subHint, null);
     }
 
-    public void setMode(DisplayMode mode, String hint, boolean showOnContent) {
-        setMode(mode, hint, "", showOnContent);
+    public void setMode(DisplayMode mode, String hint, OverLapMode overlapMode) {
+        setMode(mode, hint, "", overlapMode);
     }
 
-    public void setMode(final DisplayMode mode, final String hint, final String subHint, final Boolean showOnContent) {
+    public void setMode(final DisplayMode mode, final String hint, final String subHint, final OverLapMode overlapMode) {
         handler.removeCallbacksAndMessages(null);
         long delay = mode.delay;
         if (delay > 0) {
             handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    BaseLoadingView.this.setLoadingMode(mode, hint, subHint, showOnContent);
+                    BaseLoadingView.this.setLoadingMode(mode, hint, subHint, overlapMode);
                 }
             }, delay);
         } else {
-            setLoadingMode(mode, hint, subHint, showOnContent);
+            setLoadingMode(mode, hint, subHint, overlapMode);
         }
-        mode.delay(0);
+        mode.reset();
     }
 
     /**
      * just call setMode after this View got,
      *
-     * @param mode          the current display mode you need;
-     * @param showOnContent is showing on content? or hide content?
-     * @param hint          show something when it`s change a mode;
+     * @param mode        the current display mode you need;
+     * @param overlapMode is showing on content? or hide content?
+     * @param hint        show something when it`s change a mode;
      */
-    private void setLoadingMode(DisplayMode mode, String hint, String subHint, Boolean showOnContent) {
-        if (showOnContent == null) showOnContent = showOnContentDefault;
+    private void setLoadingMode(DisplayMode mode, String hint, String subHint, OverLapMode overlapMode) {
+        if (overlapMode == null) overlapMode = getMode(shownModeDefault);
         if (mode == DisplayMode.NONE) mode = DisplayMode.NORMAL;
-        int newCode = (showOnContent ? -10 : 10) + mode.value;
-        int oldCode = (showOnContent ? -10 : 10) + oldMode.value;
+        int newCode = overlapMode.value + mode.value;
+        int oldCode = overlapMode.value + oldMode.value;
         oldMode = mode;
         boolean isSameMode = newCode == oldCode;
         String hintText = (!TextUtils.isEmpty(hint) ? hint : getHintString(mode));
@@ -302,9 +288,8 @@ public class BaseLoadingView extends FrameLayout {
         }
         disPlayViews.put(mode, 0.0f);
         if (!isSameMode) {
-            resetBackground(showOnContent);
-            needBackground = showOnContent ? bgOnContent : bg;
-            valueAnimator.start(mode, showOnContent);
+            resetBackground(overlapMode);
+            valueAnimator.start(mode, overlapMode);
         }
         if (onMode != null) {
             onMode.onModeChange(mode);
@@ -324,9 +309,9 @@ public class BaseLoadingView extends FrameLayout {
         }
     }
 
-    private synchronized void onAnimationFraction(float duration, float offset, DisplayMode curMode) {
+    private synchronized void onAnimationFraction(float duration, float offset, DisplayMode curMode, OverLapMode overLapMode) {
         setViews(offset, curMode);
-        setBackground(duration, offset, curMode);
+        setBackground(duration, offset, curMode, overLapMode);
     }
 
     private void setViews(float offset, DisplayMode curMode) {
@@ -355,16 +340,14 @@ public class BaseLoadingView extends FrameLayout {
         }
     }
 
-    private void setBackground(float duration, float offset, DisplayMode curMode) {
+    private void setBackground(float duration, float offset, DisplayMode curMode, OverLapMode overLapMode) {
         if (curMode != DisplayMode.NORMAL) {
             if (getVisibility() != VISIBLE) {
                 setAlpha(0);
                 setVisibility(VISIBLE);
             }
-            if (oldBackground != needBackground) {
-                curBackgroundView.setBackground(needBackground);
-                oldBackground = needBackground;
-            }
+
+
             if (getAlpha() >= 1.0f) {
                 setAlpha(1);
             } else {
@@ -374,7 +357,7 @@ public class BaseLoadingView extends FrameLayout {
             setAlpha(1.0f - duration);
             if (getAlpha() <= 0.05f) {
                 setAlpha(0);
-                setBackground(oldBackground = null);
+                setBackground(null);
                 setVisibility(GONE);
             }
         }
@@ -400,16 +383,16 @@ public class BaseLoadingView extends FrameLayout {
     public static class BaseLoadingValueAnimator extends ValueAnimator {
 
         private DisplayMode curMode;
-        private boolean isShowOnContent;
+        private OverLapMode overLapMode;
         private float curDuration;
         private boolean isCancel;
 
         private BaseLoadingAnimatorListener listener;
 
-        private void start(DisplayMode mode, boolean isShowOnContent) {
+        private void start(DisplayMode mode, OverLapMode overLapMode) {
             if (isRunning()) cancel();
             this.curMode = mode;
-            this.isShowOnContent = isShowOnContent;
+            this.overLapMode = overLapMode;
             super.start();
         }
 
@@ -435,7 +418,7 @@ public class BaseLoadingView extends FrameLayout {
                     curDuration = 0;
                     if (isCancel) return;
                     if (listener != null)
-                        listener.onAnimEnd(animation, curMode, isShowOnContent);
+                        listener.onAnimEnd(animation, curMode, overLapMode);
                 }
 
                 @Override
@@ -456,7 +439,7 @@ public class BaseLoadingView extends FrameLayout {
                     if (listener != null) {
                         float duration = (float) animation.getAnimatedValue();
                         float offset = duration - curDuration;
-                        listener.onDurationChange(animation, offset, curMode, isShowOnContent);
+                        listener.onDurationChange(animation, offset, curMode, overLapMode);
                         curDuration = duration;
                     }
                 }
@@ -470,8 +453,8 @@ public class BaseLoadingView extends FrameLayout {
 
     public interface BaseLoadingAnimatorListener {
 
-        void onDurationChange(ValueAnimator animation, float duration, DisplayMode mode, boolean isShowOnContent);
+        void onDurationChange(ValueAnimator animation, float duration, DisplayMode mode, OverLapMode overLapMode);
 
-        void onAnimEnd(Animator animation, DisplayMode mode, boolean isShowOnContent);
+        void onAnimEnd(Animator animation, DisplayMode mode, OverLapMode overLapMode);
     }
 }
