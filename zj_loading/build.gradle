@@ -9,4 +9,3 @@ android {
         versionName "1.0"
     }
 }
-apply from: 'upload.gradle'
