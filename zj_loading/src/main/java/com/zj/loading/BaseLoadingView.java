@@ -44,7 +44,9 @@ public class BaseLoadingView extends FrameLayout {
     private DisplayMode oldMode = DisplayMode.NONE;
     private Map<DisplayMode, Float> disPlayViews;
     private View rootView;
-    private View noData, noNetwork, blvChildBg, blvFlDrawer;
+    private View noData;
+    private View noNetwork;
+    private View blvChildBg;
     private ProgressBar loading;
     private TextView tvHint, tvRefresh;
     private Button btnRefresh;
@@ -98,7 +100,7 @@ public class BaseLoadingView extends FrameLayout {
      */
     public void setOnTapListener(OnTapListener refresh) {
         this.refresh = refresh;
-        setOnClickListener(new OnClickListener() {
+        (btnEnable ? btnRefresh : this).setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (refreshEnable && refreshEnableWithView && BaseLoadingView.this.refresh != null) {
@@ -163,7 +165,7 @@ public class BaseLoadingView extends FrameLayout {
         noNetwork = f(R.id.blv_vNoNetwork);
         loading = f(R.id.blv_pb);
         tvHint = f(R.id.blv_tvHint);
-        blvFlDrawer = f(R.id.blv_fl_drawer);
+        View blvFlDrawer = f(R.id.blv_fl_drawer);
         if (drawerWidth > 0 && drawerHeight > 0) {
             ViewGroup.LayoutParams lp = blvFlDrawer.getLayoutParams();
             lp.width = (int) (drawerWidth + 0.5f);
