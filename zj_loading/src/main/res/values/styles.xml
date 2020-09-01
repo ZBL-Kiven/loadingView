@@ -11,7 +11,8 @@
         <attr name="loadingText" format="string" />
         <attr name="noDataText" format="string" />
         <attr name="networkErrorText" format="string" />
-        <attr name="refreshText" format="string" />
+        <attr name="refreshNetworkText" format="string" />
+        <attr name="refreshNoDataText" format="string" />
         <attr name="shownMode" format="enum">
             <enum name="overlap" value="0" />
             <enum name="floating" value="1" />
@@ -28,6 +29,9 @@
         <attr name="btnTextSize" format="dimension" />
         <attr name="loadingTextSize" format="dimension" />
         <attr name="hintTextSize" format="dimension" />
+
+        <attr name="drawerWidth" format="dimension" />
+        <attr name="drawerHeight" format="dimension" />
 
     </declare-styleable>
 

@@ -28,9 +28,10 @@
         app:noDataRes="@mipmap/no_data"
         app:noDataText="@string/noData"
         app:noNetworkRes="@mipmap/no_network"
-        app:refreshText="@string/refresh"
+        app:refreshNoDataText="@string/refresh"
+        app:refreshNetworkText="@string/refresh"
         app:refreshTextColor="@color/grayish"
-        app:shownMode="fo" />
+        app:shownMode="overlap" />
 
     <Button
         android:id="@+id/bt_view"
