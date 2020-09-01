@@ -165,6 +165,7 @@ public class BaseLoadingView extends FrameLayout {
         noNetwork = f(R.id.blv_vNoNetwork);
         loading = f(R.id.blv_pb);
         tvHint = f(R.id.blv_tvHint);
+        btnRefresh = f(R.id.blv_btnRefresh);
         View blvFlDrawer = f(R.id.blv_fl_drawer);
         if (drawerWidth > 0 && drawerHeight > 0) {
             ViewGroup.LayoutParams lp = blvFlDrawer.getLayoutParams();
