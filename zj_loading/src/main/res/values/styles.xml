@@ -1,8 +1,8 @@
 <resources>
 
     <declare-styleable name="BaseLoadingView">
-        <attr name="backgroundFill" format="reference" />
-        <attr name="backgroundUnderTheContent" format="reference" />
+        <attr name="backgroundFill" format="color|reference" />
+        <attr name="backgroundUnderTheContent" format="color|reference" />
         <attr name="loadingRes" format="reference" />
         <attr name="noDataRes" format="reference" />
         <attr name="noNetworkRes" format="reference" />
@@ -17,7 +17,18 @@
             <enum name="floating" value="1" />
             <enum name="fo" value="2" />
         </attr>
+        <attr name="btnBackground" format="color|reference" />
+        <attr name="btnTextColor" format="color|reference" />
+        <attr name="btnText" format="string|reference" />
+
+        <attr name="btnEnable" format="boolean" />
+        <attr name="hintEnable" format="boolean" />
         <attr name="refreshEnable" format="boolean" />
+
+        <attr name="btnTextSize" format="dimension" />
+        <attr name="loadingTextSize" format="dimension" />
+        <attr name="hintTextSize" format="dimension" />
+
     </declare-styleable>
 
     <style name="mProgress_circle">

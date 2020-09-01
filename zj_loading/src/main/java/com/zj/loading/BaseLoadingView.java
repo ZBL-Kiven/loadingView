@@ -11,6 +11,7 @@ import android.os.Looper;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.View;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -42,18 +43,19 @@ public class BaseLoadingView extends FrameLayout {
     private DisplayMode oldMode = DisplayMode.NONE;
     private Map<DisplayMode, Float> disPlayViews;
     private View rootView;
-    private View noData, noNetwork, blvChildBg;
+    private View noData, noNetwork, blvChildBg, blvFlDrawer;
     private ProgressBar loading;
     private TextView tvHint, tvRefresh;
+    private Button btnRefresh;
     private OnTapListener refresh;
     private OnChangeListener onMode;
     private Handler handler;
 
-    private Drawable bg, bgOnContent, oldBackground, needBackground;
+    private Drawable bg, bgOnContent, btnBg, oldBackground, needBackground;
     private int noDataRes = -1;
     private int noNetworkRes = -1;
     private int loadingRes = -1;
-    private int hintTextColor, refreshTextColor;
+    private int hintTextColor, refreshTextColor, btnTextColor;
 
     private int shownModeDefault = 0;
 
@@ -61,8 +63,12 @@ public class BaseLoadingView extends FrameLayout {
     private String noDataHint = "";
     private String networkErrorHint = "";
     private String refreshHint = "";
+    private String btnText = "";
+
+    private float loadingTextSize, hintTextSize, btnTextSize;
 
     private boolean refreshEnable = true;
+    private boolean btnEnable, hintEnable = false;
     private boolean refreshEnableWithView = false;
 
     private BaseLoadingValueAnimator valueAnimator;
@@ -116,14 +122,26 @@ public class BaseLoadingView extends FrameLayout {
                 noDataRes = array.getResourceId(R.styleable.BaseLoadingView_noDataRes, -1);
                 noNetworkRes = array.getResourceId(R.styleable.BaseLoadingView_noNetworkRes, -1);
                 loadingRes = array.getResourceId(R.styleable.BaseLoadingView_loadingRes, -1);
-                hintTextColor = array.getColor(R.styleable.BaseLoadingView_hintColor, -1);
+                loadingTextSize = array.getDimension(R.styleable.BaseLoadingView_btnTextSize, 48f);
                 refreshTextColor = array.getColor(R.styleable.BaseLoadingView_refreshTextColor, -1);
                 loadingHint = array.getString(R.styleable.BaseLoadingView_loadingText);
                 noDataHint = array.getString(R.styleable.BaseLoadingView_noDataText);
                 networkErrorHint = array.getString(R.styleable.BaseLoadingView_networkErrorText);
-                refreshHint = array.getString(R.styleable.BaseLoadingView_refreshText);
                 shownModeDefault = array.getInt(R.styleable.BaseLoadingView_shownMode, 0);
                 refreshEnable = array.getBoolean(R.styleable.BaseLoadingView_refreshEnable, true);
+                hintEnable = array.getBoolean(R.styleable.BaseLoadingView_hintEnable, false);
+                if (btnEnable) {
+                    hintTextColor = array.getColor(R.styleable.BaseLoadingView_hintColor, -1);
+                    hintTextSize = array.getDimension(R.styleable.BaseLoadingView_hintTextSize, 24f);
+                    refreshHint = array.getString(R.styleable.BaseLoadingView_refreshText);
+                }
+                btnEnable = array.getBoolean(R.styleable.BaseLoadingView_btnEnable, false);
+                if (btnEnable) {
+                    btnBg = array.getDrawable(R.styleable.BaseLoadingView_btnBackground);
+                    btnText = array.getString(R.styleable.BaseLoadingView_btnText);
+                    btnTextSize = array.getDimension(R.styleable.BaseLoadingView_btnTextSize, 36f);
+                    btnText = array.getString(R.styleable.BaseLoadingView_btnText);
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             } finally {
@@ -140,16 +158,24 @@ public class BaseLoadingView extends FrameLayout {
         noNetwork = f(R.id.blv_vNoNetwork);
         loading = f(R.id.blv_pb);
         tvHint = f(R.id.blv_tvHint);
-        tvRefresh = f(R.id.blv_tvRefresh);
+        if (hintEnable) tvRefresh = f(R.id.blv_tvRefresh);
         blvChildBg = f(R.id.blv_child_bg);
         if (refreshHint != null && !refreshHint.isEmpty()) tvRefresh.setText(refreshHint);
-        if (hintTextColor != 0)
-            tvHint.setTextColor(hintTextColor);
-        if (refreshTextColor != 0)
-            tvRefresh.setTextColor(refreshTextColor);
         disPlayViews = new HashMap<>();
         disPlayViews.put(DisplayMode.LOADING, 0.0f);
-        tvHint.setText(loadingHint);
+        tvHint.setTextSize(loadingTextSize);
+        if (hintTextColor != 0) tvHint.setTextColor(hintTextColor);
+        if (hintEnable) {
+            if (refreshTextColor != 0) tvRefresh.setTextColor(refreshTextColor);
+            tvRefresh.setTextSize(hintTextSize);
+            tvRefresh.setText(loadingHint);
+        }
+        if (btnEnable) {
+            if (btnTextColor != 0) btnRefresh.setTextColor(btnTextColor);
+            btnRefresh.setTextSize(btnTextSize);
+            btnRefresh.setBackground(btnBg);
+        }
+
         resetUi();
         OverLapMode defaultMode = getMode(shownModeDefault);
         resetBackground(defaultMode);
@@ -265,6 +291,7 @@ public class BaseLoadingView extends FrameLayout {
      * @param hint        show something when it`s change a mode;
      */
     private void setLoadingMode(DisplayMode mode, String hint, String subHint, OverLapMode overlapMode) {
+        refreshEnableWithView = refreshEnable && (mode == DisplayMode.NO_DATA || mode == DisplayMode.NO_NETWORK);
         if (overlapMode == null) overlapMode = getMode(shownModeDefault);
         if (mode == DisplayMode.NONE) mode = DisplayMode.NORMAL;
         int newCode = overlapMode.value + mode.value;
@@ -275,9 +302,12 @@ public class BaseLoadingView extends FrameLayout {
         if (hintText != null) {
             tvHint.setText(hintText);
         }
-        refreshEnableWithView = refreshEnable && (mode == DisplayMode.NO_DATA || mode == DisplayMode.NO_NETWORK);
-        tvRefresh.setVisibility(refreshEnableWithView ? View.VISIBLE : View.INVISIBLE);
-        if (refreshEnableWithView) {
+        btnRefresh.setVisibility(refreshEnableWithView && btnEnable ? VISIBLE : GONE);
+        if (btnEnable) {
+            btnRefresh.setText(btnText);
+        }
+        tvRefresh.setVisibility(refreshEnableWithView && hintEnable ? View.VISIBLE : View.INVISIBLE);
+        if (hintEnable) {
             tvRefresh.setText(TextUtils.isEmpty(subHint) ? refreshHint : subHint);
         }
         if (valueAnimator == null) {
