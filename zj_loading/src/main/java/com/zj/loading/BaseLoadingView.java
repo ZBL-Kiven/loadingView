@@ -11,6 +11,8 @@ import android.os.Looper;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -42,27 +44,35 @@ public class BaseLoadingView extends FrameLayout {
     private DisplayMode oldMode = DisplayMode.NONE;
     private Map<DisplayMode, Float> disPlayViews;
     private View rootView;
-    private View noData, noNetwork, blvChildBg, curBackgroundView;
+    private View noData;
+    private View noNetwork;
+    private View blvChildBg;
     private ProgressBar loading;
     private TextView tvHint, tvRefresh;
-    private CallRefresh refresh;
-    private OnMode onMode;
+    private Button btnRefresh;
+    private OnTapListener refresh;
+    private OnChangeListener onMode;
     private Handler handler;
 
-    private Drawable bg, bgOnContent, needBackground, oldBackground;
+    private Drawable bg, bgOnContent, btnBg, oldBackground, needBackground;
     private int noDataRes = -1;
     private int noNetworkRes = -1;
     private int loadingRes = -1;
-    private int hintTextColor, refreshTextColor;
+    private int hintTextColor, refreshTextColor, btnTextColor;
 
-    private boolean showOnContentDefault;
+    private int shownModeDefault = 0;
 
     private String loadingHint = "";
     private String noDataHint = "";
     private String networkErrorHint = "";
-    private String refreshHint = "";
+    private String refreshNoDataText = "";
+    private String refreshNetworkText = "";
+    private String btnText = "";
+
+    private float loadingTextSize, hintTextSize, btnTextSize, drawerWidth, drawerHeight;
 
     private boolean refreshEnable = true;
+    private boolean btnEnable, hintEnable = false;
     private boolean refreshEnableWithView = false;
 
     private BaseLoadingValueAnimator valueAnimator;
@@ -71,34 +81,16 @@ public class BaseLoadingView extends FrameLayout {
         this.refreshEnable = enable;
     }
 
-    public interface CallRefresh {
-        void onCallRefresh();
-    }
-
-    public interface OnMode {
-        void onModeChange(DisplayMode mode);
-    }
-
-
-    public enum DisplayMode {
-        NONE(0), LOADING(1), NO_DATA(2), NO_NETWORK(3), NORMAL(4);
-
-        private final int value;
-        public long delay;
-
-        @SuppressWarnings("UnusedReturnValue")
-        public DisplayMode delay(long mills) {
-            this.delay = mills;
-            return this;
+    private OverLapMode getMode(int mode) {
+        switch (mode) {
+            case 0:
+                return OverLapMode.OVERLAP;
+            case 1:
+                return OverLapMode.FLOATING;
+            case 2:
+                return OverLapMode.FO;
         }
-
-        public void reset() {
-            this.delay = 0L;
-        }
-
-        DisplayMode(int value) {
-            this.value = value;
-        }
+        return OverLapMode.OVERLAP;
     }
 
     /**
@@ -106,13 +98,13 @@ public class BaseLoadingView extends FrameLayout {
      * you can get the event when this view was clicked
      * and you can refresh content  when the  "onCallRefresh()" callback
      */
-    public void setRefreshListener(CallRefresh refresh) {
+    public void setOnTapListener(OnTapListener refresh) {
         this.refresh = refresh;
-        setOnClickListener(new OnClickListener() {
+        (btnEnable ? btnRefresh : this).setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (refreshEnable && refreshEnableWithView && BaseLoadingView.this.refresh != null) {
-                    BaseLoadingView.this.refresh.onCallRefresh();
+                    BaseLoadingView.this.refresh.onTap();
                 }
             }
         });
@@ -121,7 +113,7 @@ public class BaseLoadingView extends FrameLayout {
     /**
      * set a mode changed listener
      */
-    public void setOnModeListener(OnMode mode) {
+    public void setOnChangeListener(OnChangeListener mode) {
         this.onMode = mode;
     }
 
@@ -134,14 +126,29 @@ public class BaseLoadingView extends FrameLayout {
                 noDataRes = array.getResourceId(R.styleable.BaseLoadingView_noDataRes, -1);
                 noNetworkRes = array.getResourceId(R.styleable.BaseLoadingView_noNetworkRes, -1);
                 loadingRes = array.getResourceId(R.styleable.BaseLoadingView_loadingRes, -1);
-                hintTextColor = array.getColor(R.styleable.BaseLoadingView_hintColor, -1);
+                loadingTextSize = array.getDimension(R.styleable.BaseLoadingView_btnTextSize, 48f);
+                drawerWidth = array.getDimension(R.styleable.BaseLoadingView_drawerWidth, -1);
+                drawerHeight = array.getDimension(R.styleable.BaseLoadingView_drawerHeight, -1);
                 refreshTextColor = array.getColor(R.styleable.BaseLoadingView_refreshTextColor, -1);
                 loadingHint = array.getString(R.styleable.BaseLoadingView_loadingText);
                 noDataHint = array.getString(R.styleable.BaseLoadingView_noDataText);
                 networkErrorHint = array.getString(R.styleable.BaseLoadingView_networkErrorText);
-                refreshHint = array.getString(R.styleable.BaseLoadingView_refreshText);
-                showOnContentDefault = array.getBoolean(R.styleable.BaseLoadingView_shownUnderTheContentDefault, false);
+                shownModeDefault = array.getInt(R.styleable.BaseLoadingView_shownMode, 0);
                 refreshEnable = array.getBoolean(R.styleable.BaseLoadingView_refreshEnable, true);
+                hintEnable = array.getBoolean(R.styleable.BaseLoadingView_hintEnable, false);
+                refreshNoDataText = array.getString(R.styleable.BaseLoadingView_refreshNoDataText);
+                refreshNetworkText = array.getString(R.styleable.BaseLoadingView_refreshNetworkText);
+                if (btnEnable) {
+                    hintTextColor = array.getColor(R.styleable.BaseLoadingView_hintColor, -1);
+                    hintTextSize = array.getDimension(R.styleable.BaseLoadingView_hintTextSize, 24f);
+                }
+                btnEnable = array.getBoolean(R.styleable.BaseLoadingView_btnEnable, false);
+                if (btnEnable) {
+                    btnBg = array.getDrawable(R.styleable.BaseLoadingView_btnBackground);
+                    btnText = array.getString(R.styleable.BaseLoadingView_btnText);
+                    btnTextSize = array.getDimension(R.styleable.BaseLoadingView_btnTextSize, 36f);
+                    btnText = array.getString(R.styleable.BaseLoadingView_btnText);
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             } finally {
@@ -158,39 +165,54 @@ public class BaseLoadingView extends FrameLayout {
         noNetwork = f(R.id.blv_vNoNetwork);
         loading = f(R.id.blv_pb);
         tvHint = f(R.id.blv_tvHint);
-        tvRefresh = f(R.id.blv_tvRefresh);
+        btnRefresh = f(R.id.blv_btnRefresh);
+        View blvFlDrawer = f(R.id.blv_fl_drawer);
+        if (drawerWidth > 0 && drawerHeight > 0) {
+            ViewGroup.LayoutParams lp = blvFlDrawer.getLayoutParams();
+            lp.width = (int) (drawerWidth + 0.5f);
+            lp.height = (int) (drawerHeight + 0.5f);
+            blvFlDrawer.setLayoutParams(lp);
+        }
+        if (hintEnable) tvRefresh = f(R.id.blv_tvRefresh);
         blvChildBg = f(R.id.blv_child_bg);
-        if (refreshHint != null && !refreshHint.isEmpty()) tvRefresh.setText(refreshHint);
-        if (hintTextColor != 0)
-            tvHint.setTextColor(hintTextColor);
-        if (refreshTextColor != 0)
-            tvRefresh.setTextColor(refreshTextColor);
         disPlayViews = new HashMap<>();
         disPlayViews.put(DisplayMode.LOADING, 0.0f);
-        tvHint.setText(loadingHint);
+        tvHint.setTextSize(loadingTextSize);
+        if (hintTextColor != 0) tvHint.setTextColor(hintTextColor);
+        if (hintEnable) {
+            if (refreshTextColor != 0) tvRefresh.setTextColor(refreshTextColor);
+            tvRefresh.setTextSize(hintTextSize);
+            tvRefresh.setText(loadingHint);
+        }
+        if (btnEnable) {
+            if (btnTextColor != 0) btnRefresh.setTextColor(btnTextColor);
+            btnRefresh.setTextSize(btnTextSize);
+            btnRefresh.setBackground(btnBg);
+        }
+
         resetUi();
-        resetBackground(showOnContentDefault);
+        OverLapMode defaultMode = getMode(shownModeDefault);
+        resetBackground(defaultMode);
     }
 
-    private void resetBackground(boolean showOnContent) {
-        curBackgroundView = showOnContent ? blvChildBg : this;
-        blvChildBg.setBackground(showOnContent ? bgOnContent : null);
-        setBackground(showOnContent ? null : bg);
+    private void resetBackground(OverLapMode mode) {
+        setBackground((mode == OverLapMode.OVERLAP || mode == OverLapMode.FO) ? bg : null);
+        blvChildBg.setBackground((mode == OverLapMode.FLOATING || mode == OverLapMode.FO) ? bgOnContent : null);
     }
 
     private BaseLoadingAnimatorListener listener = new BaseLoadingAnimatorListener() {
 
         @Override
-        public void onDurationChange(ValueAnimator animation, float offset, DisplayMode mode, boolean isShowOnContent) {
+        public void onDurationChange(ValueAnimator animation, float offset, DisplayMode mode, OverLapMode overLapMode) {
             synchronized (BaseLoadingView.this) {
-                onAnimationFraction(animation.getAnimatedFraction(), offset, mode);
+                onAnimationFraction(animation.getAnimatedFraction(), offset, mode, overLapMode);
             }
         }
 
         @Override
-        public void onAnimEnd(Animator animation, DisplayMode mode, boolean isShowOnContent) {
+        public void onAnimEnd(Animator animation, DisplayMode mode, OverLapMode overLapMode) {
             synchronized (BaseLoadingView.this) {
-                onAnimationFraction(1.0f, 1.0f, mode);
+                onAnimationFraction(1.0f, 1.0f, mode, overLapMode);
             }
         }
     };
@@ -243,55 +265,64 @@ public class BaseLoadingView extends FrameLayout {
         setMode(mode, hint, "");
     }
 
-    public void setMode(DisplayMode mode, boolean showOnContent) {
-        setMode(mode, "", "", showOnContent);
+    public void setMode(DisplayMode mode, OverLapMode overlapMode) {
+        setMode(mode, "", "", overlapMode);
     }
 
     public void setMode(DisplayMode mode, String hint, String subHint) {
         setMode(mode, hint, subHint, null);
     }
 
-    public void setMode(DisplayMode mode, String hint, boolean showOnContent) {
-        setMode(mode, hint, "", showOnContent);
+    public void setMode(DisplayMode mode, String hint, OverLapMode overlapMode) {
+        setMode(mode, hint, "", overlapMode);
     }
 
-    public void setMode(final DisplayMode mode, final String hint, final String subHint, final Boolean showOnContent) {
+    public void setMode(final DisplayMode mode, final String hint, final String subHint, final OverLapMode overlapMode) {
         handler.removeCallbacksAndMessages(null);
         long delay = mode.delay;
         if (delay > 0) {
             handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    BaseLoadingView.this.setLoadingMode(mode, hint, subHint, showOnContent);
+                    BaseLoadingView.this.setLoadingMode(mode, hint, subHint, overlapMode);
                 }
             }, delay);
         } else {
-            setLoadingMode(mode, hint, subHint, showOnContent);
+            setLoadingMode(mode, hint, subHint, overlapMode);
         }
-        mode.delay(0);
+        mode.reset();
     }
 
     /**
      * just call setMode after this View got,
      *
-     * @param mode          the current display mode you need;
-     * @param showOnContent is showing on content? or hide content?
-     * @param hint          show something when it`s change a mode;
+     * @param mode        the current display mode you need;
+     * @param overlapMode is showing on content? or hide content?
+     * @param hint        show something when it`s change a mode;
      */
-    private void setLoadingMode(DisplayMode mode, String hint, String subHint, Boolean showOnContent) {
-        if (showOnContent == null) showOnContent = showOnContentDefault;
+    private void setLoadingMode(DisplayMode mode, String hint, String subHint, OverLapMode overlapMode) {
+        refreshEnableWithView = refreshEnable && (mode == DisplayMode.NO_DATA || mode == DisplayMode.NO_NETWORK);
+        if (overlapMode == null) overlapMode = getMode(shownModeDefault);
         if (mode == DisplayMode.NONE) mode = DisplayMode.NORMAL;
-        int newCode = (showOnContent ? -10 : 10) + mode.value;
-        int oldCode = (showOnContent ? -10 : 10) + oldMode.value;
+        int newCode = overlapMode.value + mode.value;
+        int oldCode = overlapMode.value + oldMode.value;
         oldMode = mode;
         boolean isSameMode = newCode == oldCode;
         String hintText = (!TextUtils.isEmpty(hint) ? hint : getHintString(mode));
         if (hintText != null) {
             tvHint.setText(hintText);
         }
-        refreshEnableWithView = refreshEnable && (mode == DisplayMode.NO_DATA || mode == DisplayMode.NO_NETWORK);
-        tvRefresh.setVisibility(refreshEnableWithView ? View.VISIBLE : View.INVISIBLE);
-        if (refreshEnableWithView) {
+        btnRefresh.setVisibility(refreshEnableWithView && btnEnable ? VISIBLE : GONE);
+        if (btnEnable) {
+            btnRefresh.setText(btnText);
+        }
+        String refreshHint = null;
+        if (mode == DisplayMode.NO_DATA || mode == DisplayMode.NO_NETWORK) {
+            refreshHint = mode == DisplayMode.NO_DATA ? refreshNoDataText : refreshNetworkText;
+        }
+        boolean hasHint = TextUtils.isEmpty(subHint) || TextUtils.isEmpty(refreshHint);
+        tvRefresh.setVisibility(hasHint && refreshEnableWithView && hintEnable ? View.VISIBLE : View.INVISIBLE);
+        if (hintEnable) {
             tvRefresh.setText(TextUtils.isEmpty(subHint) ? refreshHint : subHint);
         }
         if (valueAnimator == null) {
@@ -302,9 +333,8 @@ public class BaseLoadingView extends FrameLayout {
         }
         disPlayViews.put(mode, 0.0f);
         if (!isSameMode) {
-            resetBackground(showOnContent);
-            needBackground = showOnContent ? bgOnContent : bg;
-            valueAnimator.start(mode, showOnContent);
+            resetBackground(overlapMode);
+            valueAnimator.start(mode, overlapMode);
         }
         if (onMode != null) {
             onMode.onModeChange(mode);
@@ -324,9 +354,9 @@ public class BaseLoadingView extends FrameLayout {
         }
     }
 
-    private synchronized void onAnimationFraction(float duration, float offset, DisplayMode curMode) {
+    private synchronized void onAnimationFraction(float duration, float offset, DisplayMode curMode, OverLapMode overLapMode) {
         setViews(offset, curMode);
-        setBackground(duration, offset, curMode);
+        setBackground(duration, offset, curMode, overLapMode);
     }
 
     private void setViews(float offset, DisplayMode curMode) {
@@ -355,16 +385,14 @@ public class BaseLoadingView extends FrameLayout {
         }
     }
 
-    private void setBackground(float duration, float offset, DisplayMode curMode) {
+    private void setBackground(float duration, float offset, DisplayMode curMode, OverLapMode overLapMode) {
         if (curMode != DisplayMode.NORMAL) {
             if (getVisibility() != VISIBLE) {
                 setAlpha(0);
                 setVisibility(VISIBLE);
             }
-            if (oldBackground != needBackground) {
-                curBackgroundView.setBackground(needBackground);
-                oldBackground = needBackground;
-            }
+
+
             if (getAlpha() >= 1.0f) {
                 setAlpha(1);
             } else {
@@ -374,7 +402,7 @@ public class BaseLoadingView extends FrameLayout {
             setAlpha(1.0f - duration);
             if (getAlpha() <= 0.05f) {
                 setAlpha(0);
-                setBackground(oldBackground = null);
+                setBackground(null);
                 setVisibility(GONE);
             }
         }
@@ -400,16 +428,16 @@ public class BaseLoadingView extends FrameLayout {
     public static class BaseLoadingValueAnimator extends ValueAnimator {
 
         private DisplayMode curMode;
-        private boolean isShowOnContent;
+        private OverLapMode overLapMode;
         private float curDuration;
         private boolean isCancel;
 
         private BaseLoadingAnimatorListener listener;
 
-        private void start(DisplayMode mode, boolean isShowOnContent) {
+        private void start(DisplayMode mode, OverLapMode overLapMode) {
             if (isRunning()) cancel();
             this.curMode = mode;
-            this.isShowOnContent = isShowOnContent;
+            this.overLapMode = overLapMode;
             super.start();
         }
 
@@ -435,7 +463,7 @@ public class BaseLoadingView extends FrameLayout {
                     curDuration = 0;
                     if (isCancel) return;
                     if (listener != null)
-                        listener.onAnimEnd(animation, curMode, isShowOnContent);
+                        listener.onAnimEnd(animation, curMode, overLapMode);
                 }
 
                 @Override
@@ -456,7 +484,7 @@ public class BaseLoadingView extends FrameLayout {
                     if (listener != null) {
                         float duration = (float) animation.getAnimatedValue();
                         float offset = duration - curDuration;
-                        listener.onDurationChange(animation, offset, curMode, isShowOnContent);
+                        listener.onDurationChange(animation, offset, curMode, overLapMode);
                         curDuration = duration;
                     }
                 }
@@ -470,8 +498,8 @@ public class BaseLoadingView extends FrameLayout {
 
     public interface BaseLoadingAnimatorListener {
 
-        void onDurationChange(ValueAnimator animation, float duration, DisplayMode mode, boolean isShowOnContent);
+        void onDurationChange(ValueAnimator animation, float duration, DisplayMode mode, OverLapMode overLapMode);
 
-        void onAnimEnd(Animator animation, DisplayMode mode, boolean isShowOnContent);
+        void onAnimEnd(Animator animation, DisplayMode mode, OverLapMode overLapMode);
     }
 }

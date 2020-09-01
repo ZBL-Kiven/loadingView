@@ -1,24 +1,31 @@
 package com.zj.test.baseloadingview;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.*;
+
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.zj.loading.BaseLoadingView;
+import com.zj.loading.OnTapListener;
+import com.zj.loading.DisplayMode;
+import com.zj.loading.OverLapMode;
 import com.zj.test.R;
 
 import java.util.HashMap;
 
-public class MainActivity extends Activity {
+public class MainActivity extends AppCompatActivity {
 
     private BaseLoadingView blvView;
-    private boolean isOverrideBg = true;
-
+    private int lapModeId = 0;
+    private OverLapMode curOverlapMod = OverLapMode.OVERLAP;
     private Toast toast = null;
     private int index;
-
-    private HashMap<BaseLoadingView.DisplayMode, String> hints = new HashMap<>();
+    private HashMap<DisplayMode, String> hints = new HashMap<>();
+    private OverLapMode[] modes = new OverLapMode[]{
+            OverLapMode.OVERLAP, OverLapMode.FLOATING, OverLapMode.FO
+    };
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -27,12 +34,12 @@ public class MainActivity extends Activity {
         blvView = findViewById(R.id.bld_view);
         Button btView = findViewById(R.id.bt_view);
         ImageView ivBg = findViewById(R.id.iv_bg);
-        CheckBox cbOverride = findViewById(R.id.cb_override);
+        TextView tvOverride = findViewById(R.id.tv_override);
 
-        hints.put(BaseLoadingView.DisplayMode.LOADING, getString(R.string.loading));
-        hints.put(BaseLoadingView.DisplayMode.NO_DATA, getString(R.string.noData));
-        hints.put(BaseLoadingView.DisplayMode.NO_NETWORK, getString(R.string.noNetwork));
-        hints.put(BaseLoadingView.DisplayMode.NORMAL, "");
+        hints.put(DisplayMode.LOADING, getString(R.string.loading));
+        hints.put(DisplayMode.NO_DATA, getString(R.string.noData));
+        hints.put(DisplayMode.NO_NETWORK, getString(R.string.noNetwork));
+        hints.put(DisplayMode.NORMAL, "");
 
         ivBg.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -40,10 +47,11 @@ public class MainActivity extends Activity {
                 Log.e("zj --- ", "bg.onclick");
             }
         });
-        blvView.setRefreshListener(new BaseLoadingView.CallRefresh() {
+        blvView.setOnTapListener(new OnTapListener() {
             @Override
-            public void onCallRefresh() {
-                if (toast == null) toast = Toast.makeText(MainActivity.this, "", Toast.LENGTH_SHORT);
+            public void onTap() {
+                if (toast == null)
+                    toast = Toast.makeText(MainActivity.this, "", Toast.LENGTH_SHORT);
                 toast.show();
                 toast.setText("call refresh with error");
             }
@@ -51,16 +59,16 @@ public class MainActivity extends Activity {
         btView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                BaseLoadingView.DisplayMode mode = BaseLoadingView.DisplayMode.values()[index];
-                blvView.setMode(mode, hints.get(mode), isOverrideBg);
+                DisplayMode mode = DisplayMode.values()[index];
+                blvView.setMode(mode, hints.get(mode), curOverlapMod);
                 index++;
-                if (index == BaseLoadingView.DisplayMode.values().length) index = 0;
+                if (index == DisplayMode.values().length) index = 0;
             }
         });
-        cbOverride.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        tvOverride.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                isOverrideBg = !b;
+            public void onClick(View v) {
+                curOverlapMod = modes[++lapModeId % 3];
             }
         });
     }

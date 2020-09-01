@@ -9,5 +9,4 @@ gradle
 .DS_Store
 captures
 .externalNativeBuild
-upload.gradle
 repository

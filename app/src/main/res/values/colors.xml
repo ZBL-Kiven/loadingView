@@ -5,5 +5,5 @@
     <color name="colorAccent">#21202F</color>
     <color name="grayish">#666</color>
     <color name="loading_color_background_float">#30000000</color>
-    <color name="loading_color_background">#fff4f4f4</color>
+    <color name="loading_color_background">#ffe7e7e7</color>
 </resources>
