@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/blv_child_bg"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
@@ -13,31 +14,35 @@
 
     <FrameLayout
         android:id="@+id/blv_fl_drawer"
-        android:layout_width="75dp"
-        android:layout_height="75dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginBottom="8dp">
 
         <ProgressBar
             android:id="@+id/blv_pb"
             style="@style/mProgress_circle"
-            android:layout_width="45dp"
-            android:layout_height="45dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:indeterminateDuration="1500" />
 
-        <View
+        <ImageView
             android:id="@+id/blv_vNoData"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:visibility="gone" />
+            android:background="#cca"
+            android:visibility="gone"
+            tools:ignore="ContentDescription" />
 
-        <View
+        <ImageView
             android:id="@+id/blv_vNoNetwork"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:visibility="gone" />
+            android:background="#cca"
+            android:visibility="gone"
+            tools:ignore="ContentDescription" />
 
     </FrameLayout>
 

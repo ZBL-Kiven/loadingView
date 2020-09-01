@@ -10,10 +10,12 @@ import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -44,8 +46,8 @@ public class BaseLoadingView extends FrameLayout {
     private DisplayMode oldMode = DisplayMode.NONE;
     private Map<DisplayMode, Float> disPlayViews;
     private View rootView;
-    private View noData;
-    private View noNetwork;
+    private ImageView noData;
+    private ImageView noNetwork;
     private View blvChildBg;
     private ProgressBar loading;
     private TextView tvHint, tvRefresh;
@@ -177,16 +179,16 @@ public class BaseLoadingView extends FrameLayout {
         blvChildBg = f(R.id.blv_child_bg);
         disPlayViews = new HashMap<>();
         disPlayViews.put(DisplayMode.LOADING, 0.0f);
-        tvHint.setTextSize(loadingTextSize);
+        tvHint.setTextSize(TypedValue.COMPLEX_UNIT_PX, loadingTextSize);
         if (hintTextColor != 0) tvHint.setTextColor(hintTextColor);
         if (hintEnable) {
             if (refreshTextColor != 0) tvRefresh.setTextColor(refreshTextColor);
-            tvRefresh.setTextSize(hintTextSize);
+            tvRefresh.setTextSize(TypedValue.COMPLEX_UNIT_PX, hintTextSize);
             tvRefresh.setText(loadingHint);
         }
         if (btnEnable) {
             if (btnTextColor != 0) btnRefresh.setTextColor(btnTextColor);
-            btnRefresh.setTextSize(btnTextSize);
+            btnRefresh.setTextSize(TypedValue.COMPLEX_UNIT_PX, btnTextSize);
             btnRefresh.setBackground(btnBg);
         }
 
@@ -249,10 +251,10 @@ public class BaseLoadingView extends FrameLayout {
             }
         }
         if (noDataRes > 0) {
-            noData.setBackgroundResource(noDataRes);
+            noData.setImageResource(noDataRes);
         }
         if (noNetworkRes > 0) {
-            noNetwork.setBackgroundResource(noNetworkRes);
+            noNetwork.setImageResource(noNetworkRes);
         }
     }
 
