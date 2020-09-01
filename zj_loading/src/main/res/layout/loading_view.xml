@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/blv_child_bg"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:layout_gravity="center"
     android:gravity="center"
     android:orientation="vertical"
@@ -16,6 +16,8 @@
         android:id="@+id/blv_fl_drawer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_above="@id/blv_tvHint"
+        android:layout_centerHorizontal="true"
         android:layout_marginBottom="8dp">
 
         <ProgressBar
@@ -23,14 +25,14 @@
             style="@style/mProgress_circle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
+            android:layout_gravity="center_horizontal|bottom"
             android:indeterminateDuration="1500" />
 
         <ImageView
             android:id="@+id/blv_vNoData"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
+            android:layout_gravity="center_horizontal|bottom"
             android:visibility="gone"
             tools:ignore="ContentDescription" />
 
@@ -38,7 +40,7 @@
             android:id="@+id/blv_vNoNetwork"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
+            android:layout_gravity="center_horizontal|bottom"
             android:visibility="gone"
             tools:ignore="ContentDescription" />
 
@@ -48,23 +50,32 @@
         android:id="@+id/blv_tvHint"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
         android:maxWidth="150dp"
         android:textColor="@android:color/black"
-        android:textSize="14sp" />
+        android:textSize="14sp"
+        tools:text="loading" />
 
     <TextView
         android:id="@+id/blv_tvRefresh"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
+        android:layout_below="@id/blv_tvHint"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="4dp"
         android:textColor="@android:color/darker_gray"
         android:textSize="12sp"
-        android:visibility="gone" />
+        android:visibility="gone"
+        tools:text="loading description" />
 
     <Button
         android:id="@+id/blv_btnRefresh"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:visibility="gone" />
+        android:layout_below="@id/blv_tvRefresh"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="8dp"
+        android:visibility="gone"
+        tools:text="refresh" />
 
-</LinearLayout>
+</RelativeLayout>
