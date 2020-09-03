@@ -258,6 +258,25 @@ public class BaseLoadingView extends FrameLayout {
         }
     }
 
+    public void setMode(DisplayMode mode, boolean isSetNow) {
+        setMode(mode, "", "");
+    }
+
+    public void setMode(DisplayMode mode, String hint, boolean isSetNow) {
+        setMode(mode, hint, "");
+    }
+
+    public void setMode(DisplayMode mode, OverLapMode overlapMode, boolean isSetNow) {
+        setMode(mode, "", "", overlapMode, isSetNow);
+    }
+
+    public void setMode(DisplayMode mode, String hint, String subHint, boolean isSetNow) {
+        setMode(mode, hint, subHint, null, isSetNow);
+    }
+
+    public void setMode(DisplayMode mode, String hint, OverLapMode overlapMode, boolean isSetNow) {
+        setMode(mode, hint, "", overlapMode, isSetNow);
+    }
 
     public void setMode(DisplayMode mode) {
         setMode(mode, "", "");
@@ -268,29 +287,29 @@ public class BaseLoadingView extends FrameLayout {
     }
 
     public void setMode(DisplayMode mode, OverLapMode overlapMode) {
-        setMode(mode, "", "", overlapMode);
+        setMode(mode, "", "", overlapMode, false);
     }
 
     public void setMode(DisplayMode mode, String hint, String subHint) {
-        setMode(mode, hint, subHint, null);
+        setMode(mode, hint, subHint, null, false);
     }
 
     public void setMode(DisplayMode mode, String hint, OverLapMode overlapMode) {
-        setMode(mode, hint, "", overlapMode);
+        setMode(mode, hint, "", overlapMode, false);
     }
 
-    public void setMode(final DisplayMode mode, final String hint, final String subHint, final OverLapMode overlapMode) {
+    public void setMode(final DisplayMode mode, final String hint, final String subHint, final OverLapMode overlapMode, final boolean isSetNow) {
         handler.removeCallbacksAndMessages(null);
         long delay = mode.delay;
         if (delay > 0) {
             handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    BaseLoadingView.this.setLoadingMode(mode, hint, subHint, overlapMode);
+                    BaseLoadingView.this.setLoadingMode(mode, hint, subHint, overlapMode, isSetNow);
                 }
             }, delay);
         } else {
-            setLoadingMode(mode, hint, subHint, overlapMode);
+            setLoadingMode(mode, hint, subHint, overlapMode, isSetNow);
         }
         mode.reset();
     }
@@ -302,7 +321,7 @@ public class BaseLoadingView extends FrameLayout {
      * @param overlapMode is showing on content? or hide content?
      * @param hint        show something when it`s change a mode;
      */
-    private void setLoadingMode(DisplayMode mode, String hint, String subHint, OverLapMode overlapMode) {
+    private void setLoadingMode(DisplayMode mode, String hint, String subHint, OverLapMode overlapMode, boolean isSetNow) {
         refreshEnableWithView = refreshEnable && (mode == DisplayMode.NO_DATA || mode == DisplayMode.NO_NETWORK);
         if (overlapMode == null) overlapMode = getMode(shownModeDefault);
         if (mode == DisplayMode.NONE) mode = DisplayMode.NORMAL;
@@ -327,16 +346,22 @@ public class BaseLoadingView extends FrameLayout {
         if (hintEnable) {
             tvRefresh.setText(TextUtils.isEmpty(subHint) ? refreshHint : subHint);
         }
-        if (valueAnimator == null) {
-            valueAnimator = new BaseLoadingValueAnimator(listener);
-            valueAnimator.setDuration(defaultAnimationDuration);
-        } else {
+        if (isSetNow) {
             valueAnimator.end();
-        }
-        disPlayViews.put(mode, 0.0f);
-        if (!isSameMode) {
-            resetBackground(overlapMode);
-            valueAnimator.start(mode, overlapMode);
+            setViews(1f, mode);
+            setBackground(1f, mode, overlapMode);
+        } else {
+            if (valueAnimator == null) {
+                valueAnimator = new BaseLoadingValueAnimator(listener);
+                valueAnimator.setDuration(defaultAnimationDuration);
+            } else {
+                valueAnimator.end();
+            }
+            disPlayViews.put(mode, 0.0f);
+            if (!isSameMode) {
+                resetBackground(overlapMode);
+                valueAnimator.start(mode, overlapMode);
+            }
         }
         if (onMode != null) {
             onMode.onModeChange(mode);
@@ -358,7 +383,7 @@ public class BaseLoadingView extends FrameLayout {
 
     private synchronized void onAnimationFraction(float duration, float offset, DisplayMode curMode, OverLapMode overLapMode) {
         setViews(offset, curMode);
-        setBackground(duration, offset, curMode, overLapMode);
+        setBackground(duration, curMode, overLapMode);
     }
 
     private void setViews(float offset, DisplayMode curMode) {
@@ -387,7 +412,7 @@ public class BaseLoadingView extends FrameLayout {
         }
     }
 
-    private void setBackground(float duration, float offset, DisplayMode curMode, OverLapMode overLapMode) {
+    private void setBackground(float duration, DisplayMode curMode, OverLapMode overLapMode) {
         if (curMode != DisplayMode.NORMAL) {
             if (getVisibility() != VISIBLE) {
                 setAlpha(0);
