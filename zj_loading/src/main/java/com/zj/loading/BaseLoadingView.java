@@ -347,7 +347,7 @@ public class BaseLoadingView extends FrameLayout {
             tvRefresh.setText(TextUtils.isEmpty(subHint) ? refreshHint : subHint);
         }
         if (isSetNow) {
-            valueAnimator.end();
+            if (valueAnimator != null) valueAnimator.end();
             setViews(1f, mode);
             setBackground(1f, mode, overlapMode);
         } else {
