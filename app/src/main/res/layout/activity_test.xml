@@ -11,27 +11,24 @@
         android:id="@+id/iv_bg"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:scaleType="fitCenter"
-        android:src="@mipmap/ic_launcher"
+        android:scaleType="centerCrop"
+        android:src="@drawable/ic_launcher_background"
         tools:ignore="ContentDescription" />
 
     <com.zj.loading.BaseLoadingView
         android:id="@+id/bld_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:backgroundFill="@color/loading_color_background"
+        app:backgroundFill="#3000"
         app:backgroundUnderTheContent="@drawable/loading_corner_bg"
         app:btnBackground="@color/colorPrimary"
-        app:btnEnable="true"
+        app:btnEnable="false"
         app:btnText="@string/loading"
         app:btnTextColor="#cca"
         app:btnTextSize="14sp"
-        app:drawerHeight="126dp"
-        app:drawerWidth="126dp"
         app:hintColor="@color/colorPrimaryDark"
         app:hintEnable="true"
         app:hintTextSize="13sp"
-
         app:loadingRes="@drawable/loading_progressbar"
         app:loadingText="@string/loading"
         app:loadingTextSize="17sp"
@@ -43,7 +40,8 @@
         app:refreshNetworkText="@string/refresh"
         app:refreshNoDataText="@string/refresh"
         app:refreshTextColor="@color/grayish"
-        app:shownMode="overlap" />
+        tools:visibility="gone" />
+
 
     <Button
         android:id="@+id/bt_view"
@@ -54,10 +52,11 @@
 
     <TextView
         android:id="@+id/tv_override"
-        android:layout_width="100dp"
-        android:layout_height="45dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:gravity="center"
+        android:padding="10dp"
         android:text="OverLapMod" />
 
 </FrameLayout>

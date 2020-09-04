@@ -56,7 +56,7 @@ public class BaseLoadingView extends FrameLayout {
     private OnChangeListener onMode;
     private Handler handler;
 
-    private Drawable bg, bgOnContent, btnBg, oldBackground, needBackground;
+    private Drawable bg, bgOnContent, btnBg;
     private int noDataRes = -1;
     private int noNetworkRes = -1;
     private int loadingRes = -1;
@@ -74,7 +74,7 @@ public class BaseLoadingView extends FrameLayout {
     private float loadingTextSize, hintTextSize, btnTextSize, drawerWidth, drawerHeight;
 
     private boolean refreshEnable = true;
-    private boolean btnEnable, hintEnable = false;
+    private boolean btnEnable = false, hintEnable = true;
     private boolean refreshEnableWithView = false;
 
     private BaseLoadingValueAnimator valueAnimator;
@@ -298,9 +298,14 @@ public class BaseLoadingView extends FrameLayout {
         setMode(mode, hint, "", overlapMode, false);
     }
 
+    public void setMode(DisplayMode mode, String hint, final String subHint, OverLapMode overlapMode) {
+        setMode(mode, hint, subHint, overlapMode, false);
+    }
+
     public void setMode(final DisplayMode mode, final String hint, final String subHint, final OverLapMode overlapMode, final boolean isSetNow) {
         handler.removeCallbacksAndMessages(null);
         long delay = mode.delay;
+        if (valueAnimator != null) valueAnimator.end();
         if (delay > 0) {
             handler.postDelayed(new Runnable() {
                 @Override
