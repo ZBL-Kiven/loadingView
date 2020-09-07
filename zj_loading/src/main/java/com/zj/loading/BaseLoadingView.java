@@ -128,7 +128,7 @@ public class BaseLoadingView extends FrameLayout {
                 noDataRes = array.getResourceId(R.styleable.BaseLoadingView_noDataRes, -1);
                 noNetworkRes = array.getResourceId(R.styleable.BaseLoadingView_noNetworkRes, -1);
                 loadingRes = array.getResourceId(R.styleable.BaseLoadingView_loadingRes, -1);
-                loadingTextSize = array.getDimension(R.styleable.BaseLoadingView_btnTextSize, 48f);
+                loadingTextSize = array.getDimension(R.styleable.BaseLoadingView_loadingTextSize, 48f);
                 drawerWidth = array.getDimension(R.styleable.BaseLoadingView_drawerWidth, -1);
                 drawerHeight = array.getDimension(R.styleable.BaseLoadingView_drawerHeight, -1);
                 refreshTextColor = array.getColor(R.styleable.BaseLoadingView_refreshTextColor, -1);
@@ -137,10 +137,10 @@ public class BaseLoadingView extends FrameLayout {
                 networkErrorHint = array.getString(R.styleable.BaseLoadingView_networkErrorText);
                 shownModeDefault = array.getInt(R.styleable.BaseLoadingView_shownMode, 0);
                 refreshEnable = array.getBoolean(R.styleable.BaseLoadingView_refreshEnable, true);
-                hintEnable = array.getBoolean(R.styleable.BaseLoadingView_hintEnable, false);
                 refreshNoDataText = array.getString(R.styleable.BaseLoadingView_refreshNoDataText);
                 refreshNetworkText = array.getString(R.styleable.BaseLoadingView_refreshNetworkText);
-                if (btnEnable) {
+                hintEnable = array.getBoolean(R.styleable.BaseLoadingView_hintEnable, false);
+                if (hintEnable) {
                     hintTextColor = array.getColor(R.styleable.BaseLoadingView_hintColor, -1);
                     hintTextSize = array.getDimension(R.styleable.BaseLoadingView_hintTextSize, 24f);
                 }
@@ -151,8 +151,6 @@ public class BaseLoadingView extends FrameLayout {
                     btnTextSize = array.getDimension(R.styleable.BaseLoadingView_btnTextSize, 36f);
                     btnText = array.getString(R.styleable.BaseLoadingView_btnText);
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
             } finally {
                 array.recycle();
             }
@@ -175,7 +173,7 @@ public class BaseLoadingView extends FrameLayout {
             lp.height = (int) (drawerHeight + 0.5f);
             blvFlDrawer.setLayoutParams(lp);
         }
-        if (hintEnable) tvRefresh = f(R.id.blv_tvRefresh);
+        tvRefresh = f(R.id.blv_tvRefresh);
         blvChildBg = f(R.id.blv_child_bg);
         disPlayViews = new HashMap<>();
         disPlayViews.put(DisplayMode.LOADING, 0.0f);
@@ -183,8 +181,8 @@ public class BaseLoadingView extends FrameLayout {
         if (hintTextColor != 0) tvHint.setTextColor(hintTextColor);
         if (hintEnable) {
             if (refreshTextColor != 0) tvRefresh.setTextColor(refreshTextColor);
-            tvRefresh.setTextSize(TypedValue.COMPLEX_UNIT_PX, hintTextSize);
-            tvRefresh.setText(loadingHint);
+            tvHint.setTextSize(TypedValue.COMPLEX_UNIT_PX, hintTextSize);
+            tvHint.setText(loadingHint);
         }
         if (btnEnable) {
             if (btnTextColor != 0) btnRefresh.setTextColor(btnTextColor);

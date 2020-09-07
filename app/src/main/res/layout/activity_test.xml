@@ -39,8 +39,7 @@
         app:refreshEnable="true"
         app:refreshNetworkText="@string/refresh"
         app:refreshNoDataText="@string/refresh"
-        app:refreshTextColor="@color/grayish"
-        tools:visibility="gone" />
+        app:refreshTextColor="@color/grayish" />
 
 
     <Button
