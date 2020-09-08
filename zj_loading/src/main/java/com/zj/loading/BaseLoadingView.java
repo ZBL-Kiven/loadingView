@@ -182,7 +182,6 @@ public class BaseLoadingView extends FrameLayout {
         if (hintEnable) {
             if (refreshTextColor != 0) tvRefresh.setTextColor(refreshTextColor);
             tvHint.setTextSize(TypedValue.COMPLEX_UNIT_PX, hintTextSize);
-            tvHint.setText(loadingHint);
         }
         if (btnEnable) {
             if (btnTextColor != 0) btnRefresh.setTextColor(btnTextColor);
@@ -333,7 +332,7 @@ public class BaseLoadingView extends FrameLayout {
         oldMode = mode;
         boolean isSameMode = newCode == oldCode;
         String hintText = (!TextUtils.isEmpty(hint) ? hint : getHintString(mode));
-        if (hintText != null) {
+        if (hintEnable && hintText != null) {
             tvHint.setText(hintText);
         }
         btnRefresh.setVisibility(refreshEnableWithView && btnEnable ? VISIBLE : GONE);

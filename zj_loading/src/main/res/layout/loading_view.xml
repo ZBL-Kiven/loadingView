@@ -10,24 +10,31 @@
         android:id="@+id/blv_child_bg"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="@id/blv_guideline"
+        app:layout_constraintBottom_toBottomOf="@id/guide_line_2"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/blv_fl_drawer"
-        app:layout_constraintWidth_max="270dp" />
+        app:layout_constraintTop_toTopOf="@id/guide_line_1"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <View
+        android:id="@+id/guide_line_1"
+        android:layout_width="0dp"
+        android:layout_height="10dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <FrameLayout
         android:id="@+id/blv_fl_drawer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:paddingLeft="45dp"
-        android:paddingTop="10dp"
-        android:paddingRight="45dp"
+        android:layout_marginStart="45dp"
+        android:layout_marginEnd="45dp"
         app:layout_constraintBottom_toTopOf="@id/blv_tvHint"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toBottomOf="@id/guide_line_1">
 
         <ProgressBar
             android:id="@+id/blv_pb"
@@ -35,16 +42,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal|bottom"
-            android:layout_marginBottom="8dp"
-            android:indeterminateDuration="1500"
-            android:visibility="gone" />
+            android:indeterminateDuration="1500" />
 
         <ImageView
             android:id="@+id/blv_vNoData"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal|bottom"
-            android:layout_marginBottom="8dp"
             android:visibility="gone"
             tools:ignore="ContentDescription" />
 
@@ -53,7 +57,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal|bottom"
-            android:layout_marginBottom="8dp"
             android:visibility="gone"
             tools:ignore="ContentDescription" />
 
@@ -64,13 +67,15 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="45dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="45dp"
+        android:gravity="center"
         android:textColor="@android:color/black"
         android:textSize="14sp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/blv_tvRefresh"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/blv_fl_drawer"
         tools:text="loading" />
 
     <TextView
@@ -80,9 +85,9 @@
         android:layout_marginStart="45dp"
         android:layout_marginTop="4dp"
         android:layout_marginEnd="45dp"
+        android:gravity="center"
         android:textColor="@android:color/darker_gray"
         android:textSize="12sp"
-        android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@id/blv_btnRefresh"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -96,17 +101,15 @@
         android:layout_marginStart="45dp"
         android:layout_marginTop="10dp"
         android:layout_marginEnd="45dp"
-        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/blv_tvRefresh"
         tools:text="refresh" />
 
     <View
-        android:id="@+id/blv_guideline"
+        android:id="@+id/guide_line_2"
         android:layout_width="0dp"
         android:layout_height="10dp"
-        android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/blv_btnRefresh" />
