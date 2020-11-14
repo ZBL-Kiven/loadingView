@@ -155,8 +155,9 @@ public class BaseLoadingView extends FrameLayout {
                 array.recycle();
             }
         }
-        initView(context);
         handler = new Handler(Looper.getMainLooper());
+        initView(context);
+        setMode(DisplayMode.LOADING);
     }
 
     private void initView(Context context) {
@@ -199,7 +200,7 @@ public class BaseLoadingView extends FrameLayout {
         blvChildBg.setBackground((mode == OverLapMode.FLOATING || mode == OverLapMode.FO) ? bgOnContent : null);
     }
 
-    private BaseLoadingAnimatorListener listener = new BaseLoadingAnimatorListener() {
+    private final BaseLoadingAnimatorListener listener = new BaseLoadingAnimatorListener() {
 
         @Override
         public void onDurationChange(ValueAnimator animation, float offset, DisplayMode mode, OverLapMode overLapMode) {
@@ -420,8 +421,6 @@ public class BaseLoadingView extends FrameLayout {
                 setAlpha(0);
                 setVisibility(VISIBLE);
             }
-
-
             if (getAlpha() >= 1.0f) {
                 setAlpha(1);
             } else {

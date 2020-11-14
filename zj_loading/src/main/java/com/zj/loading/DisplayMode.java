@@ -1,6 +1,6 @@
 package com.zj.loading;
 
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "UnusedReturnValue"})
 public enum DisplayMode {
     NONE(0), LOADING(1), NO_DATA(2), NO_NETWORK(3), NORMAL(4);
 
