@@ -76,6 +76,7 @@ public class BaseLoadingView extends FrameLayout {
     private boolean refreshEnable = true;
     private boolean btnEnable = false, hintEnable = true;
     private boolean refreshEnableWithView = false;
+    private DisplayMode modeDefault = DisplayMode.NONE;
 
     private BaseLoadingValueAnimator valueAnimator;
 
@@ -151,13 +152,20 @@ public class BaseLoadingView extends FrameLayout {
                     btnTextSize = array.getDimension(R.styleable.BaseLoadingView_btnTextSize, 36f);
                     btnText = array.getString(R.styleable.BaseLoadingView_btnText);
                 }
+                int mode = array.getInt(R.styleable.BaseLoadingView_modeDefault, 0);
+                for (DisplayMode m : DisplayMode.values()) {
+                    if (mode == m.value) {
+                        modeDefault = m;
+                        return;
+                    }
+                }
             } finally {
                 array.recycle();
             }
         }
         handler = new Handler(Looper.getMainLooper());
         initView(context);
-        setMode(DisplayMode.LOADING);
+        if (modeDefault != DisplayMode.NONE) setMode(modeDefault);
     }
 
     private void initView(Context context) {

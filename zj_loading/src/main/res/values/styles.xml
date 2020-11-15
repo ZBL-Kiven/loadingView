@@ -32,7 +32,11 @@
 
         <attr name="drawerWidth" format="dimension" />
         <attr name="drawerHeight" format="dimension" />
-
+        <attr name="modeDefault" format="enum">
+            <enum name="LOADING" value="1" />
+            <enum name="NO_DATA" value="2" />
+            <enum name="NET_WORK_ERROR" value="3" />
+        </attr>
     </declare-styleable>
 
     <style name="mProgress_circle">
