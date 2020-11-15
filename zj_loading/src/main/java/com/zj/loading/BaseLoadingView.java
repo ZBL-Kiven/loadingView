@@ -156,7 +156,7 @@ public class BaseLoadingView extends FrameLayout {
                 for (DisplayMode m : DisplayMode.values()) {
                     if (mode == m.value) {
                         modeDefault = m;
-                        return;
+                        break;
                     }
                 }
             } finally {
