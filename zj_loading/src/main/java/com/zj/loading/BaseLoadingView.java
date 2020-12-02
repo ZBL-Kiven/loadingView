@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
@@ -150,7 +151,7 @@ public class BaseLoadingView extends FrameLayout {
                     btnBg = array.getDrawable(R.styleable.BaseLoadingView_btnBackground);
                     btnText = array.getString(R.styleable.BaseLoadingView_btnText);
                     btnTextSize = array.getDimension(R.styleable.BaseLoadingView_btnTextSize, 36f);
-                    btnText = array.getString(R.styleable.BaseLoadingView_btnText);
+                    btnTextColor = array.getColor(R.styleable.BaseLoadingView_btnTextColor, Color.BLACK);
                 }
                 int mode = array.getInt(R.styleable.BaseLoadingView_modeDefault, 0);
                 for (DisplayMode m : DisplayMode.values()) {
