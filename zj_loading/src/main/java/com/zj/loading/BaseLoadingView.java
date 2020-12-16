@@ -166,7 +166,7 @@ public class BaseLoadingView extends FrameLayout {
         }
         handler = new Handler(Looper.getMainLooper());
         initView(context);
-        if (modeDefault != DisplayMode.NONE) setMode(modeDefault);
+        setMode(modeDefault, true);
     }
 
     private void initView(Context context) {
@@ -186,7 +186,7 @@ public class BaseLoadingView extends FrameLayout {
         tvRefresh = f(R.id.blv_tvRefresh);
         blvChildBg = f(R.id.blv_child_bg);
         disPlayViews = new HashMap<>();
-        disPlayViews.put(DisplayMode.LOADING, 0.0f);
+        disPlayViews.put(modeDefault, 0.0f);
         tvHint.setTextSize(TypedValue.COMPLEX_UNIT_PX, loadingTextSize);
         if (hintTextColor != 0) tvHint.setTextColor(hintTextColor);
         if (hintEnable) {
@@ -198,7 +198,6 @@ public class BaseLoadingView extends FrameLayout {
             btnRefresh.setTextSize(TypedValue.COMPLEX_UNIT_PX, btnTextSize);
             btnRefresh.setBackground(btnBg);
         }
-
         resetUi();
         OverLapMode defaultMode = getMode(shownModeDefault);
         resetBackground(defaultMode);
@@ -266,7 +265,7 @@ public class BaseLoadingView extends FrameLayout {
     }
 
     public void setMode(DisplayMode mode, boolean isSetNow) {
-        setMode(mode, "", "");
+        setMode(mode, "", "", isSetNow);
     }
 
     public void setMode(DisplayMode mode, String hint, boolean isSetNow) {
@@ -321,7 +320,7 @@ public class BaseLoadingView extends FrameLayout {
                 }
             }, delay);
         } else {
-            setLoadingMode(mode, hint, subHint, overlapMode, isSetNow);
+            BaseLoadingView.this.setLoadingMode(mode, hint, subHint, overlapMode, isSetNow);
         }
         mode.reset();
     }
@@ -343,8 +342,9 @@ public class BaseLoadingView extends FrameLayout {
         boolean isSameMode = newCode == oldCode;
         String hintText = (!TextUtils.isEmpty(hint) ? hint : getHintString(mode));
         if (hintEnable && hintText != null) {
+            tvHint.setVisibility(View.VISIBLE);
             tvHint.setText(hintText);
-        }
+        } else tvHint.setVisibility(View.GONE);
         btnRefresh.setVisibility(refreshEnableWithView && btnEnable ? VISIBLE : GONE);
         if (btnEnable) {
             btnRefresh.setText(btnText);
@@ -354,7 +354,7 @@ public class BaseLoadingView extends FrameLayout {
             refreshHint = mode == DisplayMode.NO_DATA ? refreshNoDataText : refreshNetworkText;
         }
         boolean hasHint = TextUtils.isEmpty(subHint) || TextUtils.isEmpty(refreshHint);
-        tvRefresh.setVisibility(hasHint && refreshEnableWithView && hintEnable ? View.VISIBLE : View.INVISIBLE);
+        tvRefresh.setVisibility(hasHint && refreshEnableWithView && hintEnable ? View.VISIBLE : View.GONE);
         if (hintEnable) {
             tvRefresh.setText(TextUtils.isEmpty(subHint) ? refreshHint : subHint);
         }

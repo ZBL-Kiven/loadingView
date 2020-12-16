@@ -2,7 +2,7 @@ package com.zj.loading;
 
 public enum OverLapMode {
 
-    FLOATING(10), OVERLAP(0), FO(100);
+    FLOATING(10), OVERLAP(100), FO(1000);
 
     final int value;
 

@@ -7,6 +7,7 @@
     android:gravity="center"
     android:orientation="vertical">
 
+
     <ImageView
         android:id="@+id/iv_bg"
         android:layout_width="match_parent"
@@ -19,21 +20,20 @@
         android:id="@+id/bld_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:backgroundFill="#3000"
+        app:backgroundFill="#7000"
         app:backgroundUnderTheContent="@drawable/loading_corner_bg"
         app:btnBackground="@color/colorPrimary"
         app:btnEnable="false"
         app:btnText="@string/loading"
         app:btnTextColor="#cca"
         app:btnTextSize="14sp"
-        app:drawerHeight="175dp"
-        app:drawerWidth="175dp"
-        app:hintColor="@color/colorPrimaryDark"
+        app:hintColor="#d7d7d7"
         app:hintEnable="true"
         app:hintTextSize="13sp"
         app:loadingRes="@drawable/loading_progressbar"
         app:loadingText="@string/loading"
         app:loadingTextSize="17sp"
+        app:modeDefault="NO_DATA"
         app:networkErrorText="@string/noNetwork"
         app:noDataRes="@mipmap/no_data"
         app:noDataText="@string/noData"
@@ -41,9 +41,8 @@
         app:refreshEnable="true"
         app:refreshNetworkText="@string/refresh"
         app:refreshNoDataText="@string/refresh"
-        app:refreshTextColor="@color/grayish"
+        app:refreshTextColor="#000"
         app:shownMode="overlap" />
-
 
     <Button
         android:id="@+id/bt_view"

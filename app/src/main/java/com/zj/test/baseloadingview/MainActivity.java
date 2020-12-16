@@ -66,7 +66,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 DisplayMode mod = mode.get(index);
-                if (mod == DisplayMode.LOADING) mod.delay(1300);
                 blvView.setMode(mod, hints.get(mod), curOverlapMod);
                 index++;
                 if (index == mode.size()) index = 0;

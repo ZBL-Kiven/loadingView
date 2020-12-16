@@ -2,7 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
+    android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_gravity="center"
     android:maxWidth="268dp">
@@ -14,13 +14,13 @@
         app:layout_constraintBottom_toBottomOf="@id/guide_line_2"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/guide_line_1"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintTop_toTopOf="@id/guide_line_1" />
 
     <View
         android:id="@+id/guide_line_1"
         android:layout_width="0dp"
-        android:layout_height="10dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="10dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -29,9 +29,8 @@
         android:id="@+id/blv_fl_drawer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_marginStart="45dp"
-        android:layout_marginEnd="45dp"
+        android:paddingStart="45dp"
+        android:paddingEnd="45dp"
         app:layout_constraintBottom_toTopOf="@id/blv_tvHint"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -43,30 +42,24 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal|bottom"
-            android:layout_marginBottom="8dp"
             android:indeterminateDuration="1500"
-            android:visibility="gone"
-            tools:visibility="visible" />
+            android:visibility="gone" />
 
         <ImageView
             android:id="@+id/blv_vNoData"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal|bottom"
-            android:layout_marginBottom="8dp"
             android:visibility="gone"
-            tools:ignore="ContentDescription"
-            tools:visibility="visible" />
+            tools:ignore="ContentDescription" />
 
         <ImageView
             android:id="@+id/blv_vNoNetwork"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal|bottom"
-            android:layout_marginBottom="8dp"
             android:visibility="gone"
-            tools:ignore="ContentDescription"
-            tools:visibility="visible" />
+            tools:ignore="ContentDescription" />
 
     </FrameLayout>
 
@@ -75,10 +68,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="45dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="45dp"
         android:gravity="center"
-        android:textColor="@android:color/black"
+        android:textColor="#000"
         android:textSize="14sp"
+        android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@id/blv_tvRefresh"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -89,7 +84,9 @@
         android:id="@+id/blv_tvRefresh"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginStart="45dp"
         android:layout_marginTop="4dp"
+        android:layout_marginEnd="45dp"
         android:gravity="center"
         android:textColor="@android:color/darker_gray"
         android:textSize="12sp"
@@ -98,8 +95,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/blv_tvHint"
-        tools:text="loading description"
-        tools:visibility="visible" />
+        tools:text="loading description" />
 
     <Button
         android:id="@+id/blv_btnRefresh"
@@ -112,13 +108,14 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/blv_tvRefresh"
-        tools:text="refresh"
-        tools:visibility="visible" />
+        tools:text="refresh" />
 
     <View
         android:id="@+id/guide_line_2"
         android:layout_width="0dp"
-        android:layout_height="10dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="10dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/blv_btnRefresh" />
