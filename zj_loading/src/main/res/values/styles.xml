@@ -12,6 +12,11 @@
         <attr name="noDataText" format="string" />
         <attr name="networkErrorText" format="string" />
         <attr name="refreshNetworkText" format="string" />
+        <attr name="changeAnimDuration" format="integer" />
+        <attr name="maxRefreshTextWidth" format="dimension" />
+        <attr name="maxRefreshTextLines" format="integer" />
+        <attr name="maxHintTextWidth" format="dimension" />
+        <attr name="maxHintTextLines" format="integer" />
         <attr name="refreshNoDataText" format="string" />
         <attr name="shownMode" format="enum">
             <enum name="overlap" value="0" />
@@ -21,13 +26,10 @@
         <attr name="btnBackground" format="color|reference" />
         <attr name="btnTextColor" format="color|reference" />
         <attr name="btnText" format="string|reference" />
-
         <attr name="btnEnable" format="boolean" />
-        <attr name="hintEnable" format="boolean" />
         <attr name="refreshEnable" format="boolean" />
-
         <attr name="btnTextSize" format="dimension" />
-        <attr name="loadingTextSize" format="dimension" />
+        <attr name="refreshTextSize" format="dimension" />
         <attr name="hintTextSize" format="dimension" />
 
         <attr name="drawerWidth" format="dimension" />

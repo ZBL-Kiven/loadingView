@@ -15,6 +15,7 @@ import com.zj.test.R;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -24,7 +25,7 @@ public class MainActivity extends AppCompatActivity {
     private OverLapMode curOverlapMod = OverLapMode.OVERLAP;
     private Toast toast = null;
     private int index;
-    private HashMap<DisplayMode, String> hints = new HashMap<>();
+    private HashSet<DisplayMode> hints = new HashSet<>();
     private List<DisplayMode> mode = new ArrayList<>();
     private OverLapMode[] modes = new OverLapMode[]{
             OverLapMode.OVERLAP, OverLapMode.FLOATING, OverLapMode.FO
@@ -38,14 +39,14 @@ public class MainActivity extends AppCompatActivity {
         Button btView = findViewById(R.id.bt_view);
         ImageView ivBg = findViewById(R.id.iv_bg);
         TextView tvOverride = findViewById(R.id.tv_override);
-        hints.put(DisplayMode.LOADING, getString(R.string.loading));
-        hints.put(DisplayMode.NO_DATA, getString(R.string.noData));
-        hints.put(DisplayMode.NO_NETWORK, getString(R.string.noNetwork));
-        hints.put(DisplayMode.NORMAL, "");
-        mode.add(0, DisplayMode.LOADING);
-        mode.add(1, DisplayMode.NORMAL);
-        mode.add(2, DisplayMode.NO_NETWORK);
-        mode.add(3, DisplayMode.NO_DATA);
+        hints.add(DisplayMode.LOADING);
+        hints.add(DisplayMode.NO_DATA);
+        hints.add(DisplayMode.NO_NETWORK);
+        hints.add(DisplayMode.NORMAL);
+        mode.add(0, DisplayMode.NORMAL);
+        mode.add(1, DisplayMode.LOADING);
+        mode.add(2, DisplayMode.NO_DATA);
+        mode.add(3, DisplayMode.NO_NETWORK);
 
         ivBg.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -66,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 DisplayMode mod = mode.get(index);
-                blvView.setMode(mod, hints.get(mod), curOverlapMod);
+                blvView.setMode(mod, curOverlapMod);
                 index++;
                 if (index == mode.size()) index = 0;
             }

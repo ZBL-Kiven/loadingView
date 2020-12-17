@@ -40,42 +40,34 @@ public class BaseLoadingView extends FrameLayout {
     public BaseLoadingView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init(context, attrs);
+        initView(context);
+        handler = new Handler(Looper.getMainLooper());
+        setMode(modeDefault, true);
     }
 
-    private static final int defaultAnimationDuration = 400;
-
+    private TextView tvHint, tvRefresh;
+    private ImageView noData;
+    private ImageView noNetwork;
+    private ProgressBar loading;
     private DisplayMode oldMode = DisplayMode.NONE;
     private Map<DisplayMode, Float> disPlayViews;
     private View rootView;
-    private ImageView noData;
-    private ImageView noNetwork;
     private View blvChildBg;
-    private ProgressBar loading;
-    private TextView tvHint, tvRefresh;
     private Button btnRefresh;
     private OnTapListener refresh;
     private OnChangeListener onMode;
-    private Handler handler;
-
+    private final Handler handler;
     private Drawable bg, bgOnContent, btnBg;
-    private int noDataRes = -1;
-    private int noNetworkRes = -1;
-    private int loadingRes = -1;
-    private int hintTextColor, refreshTextColor, btnTextColor;
-
+    private int animateDuration = 0;
     private int shownModeDefault = 0;
-
-    private String loadingHint = "";
-    private String noDataHint = "";
-    private String networkErrorHint = "";
-    private String refreshNoDataText = "";
-    private String refreshNetworkText = "";
-    private String btnText = "";
-
-    private float loadingTextSize, hintTextSize, btnTextSize, drawerWidth, drawerHeight;
-
+    private int noDataRes = -1, noNetworkRes = -1, loadingRes = -1;
+    private int hintTextColor, refreshTextColor, btnTextColor;
+    private String loadingHint = "", noDataHint = "", networkErrorHint = "", refreshNoDataText = "", refreshNetworkText = "", btnText = "";
+    private float hintTextSize, refreshTextSize, btnTextSize, drawerWidth, drawerHeight;
+    private float maxRefreshTextWidth, maxHintTextWidth;
+    private int maxRefreshTextLines, maxHintTextLines;
     private boolean refreshEnable = true;
-    private boolean btnEnable = false, hintEnable = true;
+    private boolean btnEnable = false;
     private boolean refreshEnableWithView = false;
     private DisplayMode modeDefault = DisplayMode.NONE;
 
@@ -130,7 +122,7 @@ public class BaseLoadingView extends FrameLayout {
                 noDataRes = array.getResourceId(R.styleable.BaseLoadingView_noDataRes, -1);
                 noNetworkRes = array.getResourceId(R.styleable.BaseLoadingView_noNetworkRes, -1);
                 loadingRes = array.getResourceId(R.styleable.BaseLoadingView_loadingRes, -1);
-                loadingTextSize = array.getDimension(R.styleable.BaseLoadingView_loadingTextSize, 48f);
+                refreshTextSize = array.getDimension(R.styleable.BaseLoadingView_refreshTextSize, 48f);
                 drawerWidth = array.getDimension(R.styleable.BaseLoadingView_drawerWidth, -1);
                 drawerHeight = array.getDimension(R.styleable.BaseLoadingView_drawerHeight, -1);
                 refreshTextColor = array.getColor(R.styleable.BaseLoadingView_refreshTextColor, -1);
@@ -141,19 +133,21 @@ public class BaseLoadingView extends FrameLayout {
                 refreshEnable = array.getBoolean(R.styleable.BaseLoadingView_refreshEnable, true);
                 refreshNoDataText = array.getString(R.styleable.BaseLoadingView_refreshNoDataText);
                 refreshNetworkText = array.getString(R.styleable.BaseLoadingView_refreshNetworkText);
-                hintEnable = array.getBoolean(R.styleable.BaseLoadingView_hintEnable, false);
-                if (hintEnable) {
-                    hintTextColor = array.getColor(R.styleable.BaseLoadingView_hintColor, -1);
-                    hintTextSize = array.getDimension(R.styleable.BaseLoadingView_hintTextSize, 24f);
-                }
+                animateDuration = array.getInt(R.styleable.BaseLoadingView_changeAnimDuration, 400);
+                hintTextColor = array.getColor(R.styleable.BaseLoadingView_hintColor, -1);
+                hintTextSize = array.getDimension(R.styleable.BaseLoadingView_hintTextSize, 24f);
                 btnEnable = array.getBoolean(R.styleable.BaseLoadingView_btnEnable, false);
+                maxRefreshTextWidth = array.getDimension(R.styleable.BaseLoadingView_maxRefreshTextWidth, -1);
+                maxRefreshTextLines = array.getInt(R.styleable.BaseLoadingView_maxRefreshTextLines, -1);
+                maxHintTextWidth = array.getDimension(R.styleable.BaseLoadingView_maxHintTextWidth, -1);
+                maxHintTextLines = array.getInt(R.styleable.BaseLoadingView_maxHintTextLines, -1);
                 if (btnEnable) {
                     btnBg = array.getDrawable(R.styleable.BaseLoadingView_btnBackground);
                     btnText = array.getString(R.styleable.BaseLoadingView_btnText);
                     btnTextSize = array.getDimension(R.styleable.BaseLoadingView_btnTextSize, 36f);
                     btnTextColor = array.getColor(R.styleable.BaseLoadingView_btnTextColor, Color.BLACK);
                 }
-                int mode = array.getInt(R.styleable.BaseLoadingView_modeDefault, 0);
+                int mode = array.getInt(R.styleable.BaseLoadingView_modeDefault, DisplayMode.NONE.value);
                 for (DisplayMode m : DisplayMode.values()) {
                     if (mode == m.value) {
                         modeDefault = m;
@@ -164,9 +158,6 @@ public class BaseLoadingView extends FrameLayout {
                 array.recycle();
             }
         }
-        handler = new Handler(Looper.getMainLooper());
-        initView(context);
-        setMode(modeDefault, true);
     }
 
     private void initView(Context context) {
@@ -187,11 +178,19 @@ public class BaseLoadingView extends FrameLayout {
         blvChildBg = f(R.id.blv_child_bg);
         disPlayViews = new HashMap<>();
         disPlayViews.put(modeDefault, 0.0f);
-        tvHint.setTextSize(TypedValue.COMPLEX_UNIT_PX, loadingTextSize);
+        tvHint.setTextSize(TypedValue.COMPLEX_UNIT_PX, hintTextSize);
         if (hintTextColor != 0) tvHint.setTextColor(hintTextColor);
-        if (hintEnable) {
-            if (refreshTextColor != 0) tvRefresh.setTextColor(refreshTextColor);
-            tvHint.setTextSize(TypedValue.COMPLEX_UNIT_PX, hintTextSize);
+        if (maxHintTextWidth > 0) tvHint.setMaxWidth((int) maxHintTextWidth);
+        if (maxHintTextLines > 0) {
+            tvHint.setMaxLines(maxHintTextLines);
+            tvHint.setEllipsize(TextUtils.TruncateAt.END);
+        }
+        if (refreshTextColor != 0) tvRefresh.setTextColor(refreshTextColor);
+        tvRefresh.setTextSize(TypedValue.COMPLEX_UNIT_PX, refreshTextSize);
+        if (maxRefreshTextWidth > 0) tvRefresh.setMaxWidth((int) maxRefreshTextWidth);
+        if (maxRefreshTextLines > 0) {
+            tvRefresh.setMaxLines(maxRefreshTextLines);
+            tvRefresh.setEllipsize(TextUtils.TruncateAt.END);
         }
         if (btnEnable) {
             if (btnTextColor != 0) btnRefresh.setTextColor(btnTextColor);
@@ -200,7 +199,6 @@ public class BaseLoadingView extends FrameLayout {
         }
         resetUi();
         OverLapMode defaultMode = getMode(shownModeDefault);
-        resetBackground(defaultMode);
     }
 
     private void resetBackground(OverLapMode mode) {
@@ -248,18 +246,18 @@ public class BaseLoadingView extends FrameLayout {
 
     //reset LOADING/NO_DATA/NO_NETWORK drawable
     private void resetUi() {
-        if (loadingRes > 0) {
+        if (loadingRes != -1) {
             Drawable drawable = getContext().getDrawable(loadingRes);
             if (drawable != null) {
                 Rect rect = loading.getIndeterminateDrawable().getBounds();
                 drawable.setBounds(rect);
                 loading.setIndeterminateDrawable(drawable);
             }
-        }
-        if (noDataRes > 0) {
+        } else loading.setProgressDrawable(null);
+        if (noDataRes != -1) {
             noData.setImageResource(noDataRes);
         }
-        if (noNetworkRes > 0) {
+        if (noNetworkRes != -1) {
             noNetwork.setImageResource(noNetworkRes);
         }
     }
@@ -308,6 +306,14 @@ public class BaseLoadingView extends FrameLayout {
         setMode(mode, hint, subHint, overlapMode, false);
     }
 
+    public TextView getHintView() {
+        return tvHint;
+    }
+
+    public TextView getRefreshView() {
+        return tvRefresh;
+    }
+
     public void setMode(final DisplayMode mode, final String hint, final String subHint, final OverLapMode overlapMode, final boolean isSetNow) {
         handler.removeCallbacksAndMessages(null);
         long delay = mode.delay;
@@ -341,7 +347,7 @@ public class BaseLoadingView extends FrameLayout {
         oldMode = mode;
         boolean isSameMode = newCode == oldCode;
         String hintText = (!TextUtils.isEmpty(hint) ? hint : getHintString(mode));
-        if (hintEnable && hintText != null) {
+        if (!TextUtils.isEmpty(hintText)) {
             tvHint.setVisibility(View.VISIBLE);
             tvHint.setText(hintText);
         } else tvHint.setVisibility(View.GONE);
@@ -354,26 +360,24 @@ public class BaseLoadingView extends FrameLayout {
             refreshHint = mode == DisplayMode.NO_DATA ? refreshNoDataText : refreshNetworkText;
         }
         boolean hasHint = TextUtils.isEmpty(subHint) || TextUtils.isEmpty(refreshHint);
-        tvRefresh.setVisibility(hasHint && refreshEnableWithView && hintEnable ? View.VISIBLE : View.GONE);
-        if (hintEnable) {
+        tvRefresh.setVisibility(hasHint && refreshEnableWithView ? View.VISIBLE : View.GONE);
+        if (hasHint) {
             tvRefresh.setText(TextUtils.isEmpty(subHint) ? refreshHint : subHint);
         }
-        if (isSetNow) {
+        if (isSameMode) return;
+        disPlayViews.put(mode, 0.0f);
+        resetBackground(overlapMode);
+        if (isSetNow || animateDuration <= 0) {
             if (valueAnimator != null) valueAnimator.end();
-            setViews(1f, mode);
-            setBackground(1f, mode, overlapMode);
+            onAnimationFraction(1f, 1f, mode, overlapMode);
         } else {
             if (valueAnimator == null) {
                 valueAnimator = new BaseLoadingValueAnimator(listener);
-                valueAnimator.setDuration(defaultAnimationDuration);
+                valueAnimator.setDuration(animateDuration);
             } else {
                 valueAnimator.end();
             }
-            disPlayViews.put(mode, 0.0f);
-            if (!isSameMode) {
-                resetBackground(overlapMode);
-                valueAnimator.start(mode, overlapMode);
-            }
+            valueAnimator.start(mode, overlapMode);
         }
         if (onMode != null) {
             onMode.onModeChange(mode);
@@ -383,11 +387,11 @@ public class BaseLoadingView extends FrameLayout {
     private String getHintString(DisplayMode mode) {
         switch (mode) {
             case LOADING:
-                return (loadingHint == null || loadingHint.isEmpty()) ? "LOADING" : loadingHint;
+                return (loadingHint == null || loadingHint.isEmpty()) ? "" : loadingHint;
             case NO_DATA:
-                return (noDataHint == null || noDataHint.isEmpty()) ? "no data found" : noDataHint;
+                return (noDataHint == null || noDataHint.isEmpty()) ? "" : noDataHint;
             case NO_NETWORK:
-                return (networkErrorHint == null || networkErrorHint.isEmpty()) ? "no network access" : networkErrorHint;
+                return (networkErrorHint == null || networkErrorHint.isEmpty()) ? "" : networkErrorHint;
             default:
                 return "";
         }

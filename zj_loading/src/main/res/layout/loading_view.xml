@@ -4,23 +4,23 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_gravity="center"
-    android:maxWidth="268dp">
+    android:layout_gravity="center">
 
     <View
         android:id="@+id/blv_child_bg"
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="@id/guide_line_2"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="@id/guide_line_1"
+        app:layout_constraintStart_toStartOf="@id/guide_line_1"
         app:layout_constraintTop_toTopOf="@id/guide_line_1" />
 
     <View
         android:id="@+id/guide_line_1"
         android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginTop="10dp"
+        android:layout_height="10dp"
+        android:clickable="false"
+        android:focusable="false"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -29,8 +29,8 @@
         android:id="@+id/blv_fl_drawer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingStart="45dp"
-        android:paddingEnd="45dp"
+        android:layout_marginStart="45dp"
+        android:layout_marginEnd="45dp"
         app:layout_constraintBottom_toTopOf="@id/blv_tvHint"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -113,8 +113,9 @@
     <View
         android:id="@+id/guide_line_2"
         android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginBottom="10dp"
+        android:layout_height="10dp"
+        android:clickable="false"
+        android:focusable="false"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
