@@ -350,8 +350,8 @@ public class BaseLoadingView extends FrameLayout {
         if (!TextUtils.isEmpty(hintText)) {
             tvHint.setVisibility(View.VISIBLE);
             tvHint.setText(hintText);
-        } else tvHint.setVisibility(View.GONE);
-        btnRefresh.setVisibility(refreshEnableWithView && btnEnable ? VISIBLE : GONE);
+        } else tvHint.setVisibility(View.INVISIBLE);
+        btnRefresh.setVisibility(refreshEnableWithView && btnEnable ? VISIBLE : INVISIBLE);
         if (btnEnable) {
             btnRefresh.setText(btnText);
         }
@@ -360,13 +360,12 @@ public class BaseLoadingView extends FrameLayout {
             refreshHint = mode == DisplayMode.NO_DATA ? refreshNoDataText : refreshNetworkText;
         }
         boolean hasHint = TextUtils.isEmpty(subHint) || TextUtils.isEmpty(refreshHint);
-        tvRefresh.setVisibility(hasHint && refreshEnableWithView ? View.VISIBLE : View.GONE);
+        tvRefresh.setVisibility(hasHint && refreshEnableWithView ? View.VISIBLE : View.INVISIBLE);
         if (hasHint) {
             tvRefresh.setText(TextUtils.isEmpty(subHint) ? refreshHint : subHint);
         }
         if (isSameMode) return;
         disPlayViews.put(mode, 0.0f);
-        resetBackground(overlapMode);
         if (isSetNow || animateDuration <= 0) {
             if (valueAnimator != null) valueAnimator.end();
             onAnimationFraction(1f, 1f, mode, overlapMode);
@@ -379,6 +378,7 @@ public class BaseLoadingView extends FrameLayout {
             }
             valueAnimator.start(mode, overlapMode);
         }
+        resetBackground(overlapMode);
         if (onMode != null) {
             onMode.onModeChange(mode);
         }
