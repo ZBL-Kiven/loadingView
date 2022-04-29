@@ -9,15 +9,16 @@ import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.Message;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewStub;
 import android.widget.Button;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import java.util.HashMap;
@@ -27,7 +28,7 @@ import java.util.Map;
  * @author ZJJ on 2018/7/3.
  */
 @SuppressWarnings({"unused", "unchecked"})
-public class BaseLoadingView extends FrameLayout {
+public abstract class BaseLoadingView<L extends View, N extends View, E extends View> extends FrameLayout {
 
     public BaseLoadingView(Context context) {
         this(context, null, 0);
@@ -41,18 +42,32 @@ public class BaseLoadingView extends FrameLayout {
         super(context, attrs, defStyleAttr);
         init(context, attrs);
         initView(context);
-        handler = new Handler(Looper.getMainLooper());
+        initAbsViews();
+        //noinspection NullableProblems
+        handler = new Handler(Looper.getMainLooper()) {
+            @Override
+            public void handleMessage(Message msg) {
+                if (msg.what == 998) {
+                    setContentBgSize();
+                } else {
+                    onViewVisibilityChanged(msg.what, msg.arg1 == 0);
+                }
+            }
+        };
         setMode(modeDefault, true);
     }
 
     private TextView tvHint, tvRefresh;
-    private ImageView noData;
-    private ImageView noNetwork;
-    private ProgressBar loading;
+    private ViewStub noDataStub, noNetworkStub, loadingStub;
+    protected L loading;
+    protected N noData;
+    protected E noNetwork;
     private DisplayMode oldMode = DisplayMode.NONE;
     private Map<DisplayMode, Float> disPlayViews;
     private View rootView;
+    private ViewGroup contentView;
     private View blvChildBg;
+    private float cbLeftPadding, cbTopPadding, cbRightPadding, cbBottomPadding;
     private Button btnRefresh;
     private OnTapListener refresh;
     private OnChangeListener onMode;
@@ -60,7 +75,6 @@ public class BaseLoadingView extends FrameLayout {
     private Drawable bg, bgOnContent, btnBg;
     private int animateDuration = 0;
     private int shownModeDefault = 0;
-    private int noDataRes = -1, noNetworkRes = -1, loadingRes = -1;
     private int hintTextColor, refreshTextColor, btnTextColor;
     private String loadingHint = "", noDataHint = "", networkErrorHint = "", refreshNoDataText = "", refreshNetworkText = "", btnText = "";
     private float hintTextSize, refreshTextSize, btnTextSize, drawerWidth, drawerHeight;
@@ -72,6 +86,15 @@ public class BaseLoadingView extends FrameLayout {
     private DisplayMode modeDefault = DisplayMode.NONE;
 
     private BaseLoadingValueAnimator valueAnimator;
+
+    public abstract void inflateLoadingView(ViewStub stub, float drawerWidth, float drawerHeight);
+
+    public abstract void inflateNoDataView(ViewStub stub, float drawerWidth, float drawerHeight);
+
+    public abstract void inflateNetworkErrorView(ViewStub stub, float drawerWidth, float drawerHeight);
+
+    public void onViewVisibilityChanged(int viewId, boolean visible) {
+    }
 
     public void setRefreshEnable(boolean enable) {
         this.refreshEnable = enable;
@@ -118,10 +141,6 @@ public class BaseLoadingView extends FrameLayout {
             TypedArray array = context.obtainStyledAttributes(attrs, R.styleable.BaseLoadingView);
             try {
                 bg = array.getDrawable(R.styleable.BaseLoadingView_backgroundFill);
-                bgOnContent = array.getDrawable(R.styleable.BaseLoadingView_backgroundUnderTheContent);
-                noDataRes = array.getResourceId(R.styleable.BaseLoadingView_noDataRes, -1);
-                noNetworkRes = array.getResourceId(R.styleable.BaseLoadingView_noNetworkRes, -1);
-                loadingRes = array.getResourceId(R.styleable.BaseLoadingView_loadingRes, -1);
                 refreshTextSize = array.getDimension(R.styleable.BaseLoadingView_refreshTextSize, 48f);
                 drawerWidth = array.getDimension(R.styleable.BaseLoadingView_drawerWidth, -1);
                 drawerHeight = array.getDimension(R.styleable.BaseLoadingView_drawerHeight, -1);
@@ -141,6 +160,14 @@ public class BaseLoadingView extends FrameLayout {
                 maxRefreshTextLines = array.getInt(R.styleable.BaseLoadingView_maxRefreshTextLines, -1);
                 maxHintTextWidth = array.getDimension(R.styleable.BaseLoadingView_maxHintTextWidth, -1);
                 maxHintTextLines = array.getInt(R.styleable.BaseLoadingView_maxHintTextLines, -1);
+
+                bgOnContent = array.getDrawable(R.styleable.BaseLoadingView_backgroundUnderTheContent);
+                float contentPadding = array.getDimension(R.styleable.BaseLoadingView_contentPadding, 0f);
+                cbLeftPadding = array.getDimension(R.styleable.BaseLoadingView_contentPaddingStart, contentPadding);
+                cbRightPadding = array.getDimension(R.styleable.BaseLoadingView_contentPaddingEnd, contentPadding);
+                cbTopPadding = array.getDimension(R.styleable.BaseLoadingView_contentPaddingTop, contentPadding);
+                cbBottomPadding = array.getDimension(R.styleable.BaseLoadingView_contentPaddingBottom, contentPadding);
+
                 if (btnEnable) {
                     btnBg = array.getDrawable(R.styleable.BaseLoadingView_btnBackground);
                     btnText = array.getString(R.styleable.BaseLoadingView_btnText);
@@ -161,12 +188,15 @@ public class BaseLoadingView extends FrameLayout {
     }
 
     private void initView(Context context) {
-        rootView = inflate(context, R.layout.loading_view, this);
-        noData = f(R.id.blv_vNoData);
-        noNetwork = f(R.id.blv_vNoNetwork);
-        loading = f(R.id.blv_pb);
+        rootView = View.inflate(context, R.layout.loading_view, this);
+        contentView = f(R.id.blv_cl_content);
+        noDataStub = f(R.id.blv_vNoData_stub);
+        noNetworkStub = f(R.id.blv_vNoNetwork_stub);
+        loadingStub = f(R.id.blv_loading_stub);
         tvHint = f(R.id.blv_tvHint);
         btnRefresh = f(R.id.blv_btnRefresh);
+        tvRefresh = f(R.id.blv_tvRefresh);
+        blvChildBg = f(R.id.blv_child_bg);
         View blvFlDrawer = f(R.id.blv_fl_drawer);
         if (drawerWidth > 0 && drawerHeight > 0) {
             ViewGroup.LayoutParams lp = blvFlDrawer.getLayoutParams();
@@ -174,8 +204,6 @@ public class BaseLoadingView extends FrameLayout {
             lp.height = (int) (drawerHeight + 0.5f);
             blvFlDrawer.setLayoutParams(lp);
         }
-        tvRefresh = f(R.id.blv_tvRefresh);
-        blvChildBg = f(R.id.blv_child_bg);
         disPlayViews = new HashMap<>();
         disPlayViews.put(modeDefault, 0.0f);
         tvHint.setTextSize(TypedValue.COMPLEX_UNIT_PX, hintTextSize);
@@ -197,13 +225,17 @@ public class BaseLoadingView extends FrameLayout {
             btnRefresh.setTextSize(TypedValue.COMPLEX_UNIT_PX, btnTextSize);
             btnRefresh.setBackground(btnBg);
         }
-        resetUi();
-        OverLapMode defaultMode = getMode(shownModeDefault);
+        if (modeDefault != DisplayMode.NORMAL && modeDefault != DisplayMode.NONE) {
+            OverLapMode defaultMode = getMode(shownModeDefault);
+            resetBackground(defaultMode);
+        }
     }
 
     private void resetBackground(OverLapMode mode) {
         setBackground((mode == OverLapMode.OVERLAP || mode == OverLapMode.FO) ? bg : null);
-        blvChildBg.setBackground((mode == OverLapMode.FLOATING || mode == OverLapMode.FO) ? bgOnContent : null);
+        Drawable drawable = (mode == OverLapMode.FLOATING || mode == OverLapMode.FO) ? bgOnContent : null;
+        blvChildBg.setBackground(drawable);
+        blvChildBg.setVisibility((drawable == null) ? View.GONE : View.VISIBLE);
     }
 
     private final BaseLoadingAnimatorListener listener = new BaseLoadingAnimatorListener() {
@@ -223,42 +255,24 @@ public class BaseLoadingView extends FrameLayout {
         }
     };
 
-    /**
-     * @param drawableRes must be an animatorDrawable in progressBar;
-     * @link call resetUi() after set this
-     */
-    public BaseLoadingView setLoadingDrawable(int drawableRes) {
-        this.loadingRes = drawableRes;
-        return this;
-    }
-
-    //call resetUi() after set this
-    public BaseLoadingView setNoDataDrawable(int drawableRes) {
-        this.noDataRes = drawableRes;
-        return this;
-    }
-
-    //call resetUi() after set this
-    public BaseLoadingView setNoNetworkDrawable(int drawableRes) {
-        this.noNetworkRes = drawableRes;
-        return this;
-    }
-
-    //reset LOADING/NO_DATA/NO_NETWORK drawable
-    private void resetUi() {
-        if (loadingRes != -1) {
-            Drawable drawable = getContext().getDrawable(loadingRes);
-            if (drawable != null) {
-                Rect rect = loading.getIndeterminateDrawable().getBounds();
-                drawable.setBounds(rect);
-                loading.setIndeterminateDrawable(drawable);
-            }
-        } else loading.setProgressDrawable(null);
-        if (noDataRes != -1) {
-            noData.setImageResource(noDataRes);
+    private void initAbsViews() {
+        if (loading == null) {
+            int inflated = loadingStub.getInflatedId();
+            inflateLoadingView(loadingStub, drawerWidth, drawerHeight);
+            loading = f(inflated);
+            loading.setVisibility(View.GONE);
         }
-        if (noNetworkRes != -1) {
-            noNetwork.setImageResource(noNetworkRes);
+        if (noData == null) {
+            int inflated = noDataStub.getInflatedId();
+            inflateNoDataView(noDataStub, drawerWidth, drawerHeight);
+            noData = f(inflated);
+            noData.setVisibility(View.GONE);
+        }
+        if (noNetwork == null) {
+            int inflated = noNetworkStub.getInflatedId();
+            inflateNetworkErrorView(noNetworkStub, drawerWidth, drawerHeight);
+            noNetwork = f(inflated);
+            noNetwork.setVisibility(View.GONE);
         }
     }
 
@@ -365,7 +379,7 @@ public class BaseLoadingView extends FrameLayout {
             tvRefresh.setText(TextUtils.isEmpty(subHint) ? refreshHint : subHint);
         }
         if (isSameMode) return;
-        disPlayViews.put(mode, 0.0f);
+        if (mode != DisplayMode.NORMAL) disPlayViews.put(mode, 0.0f);
         if (isSetNow || animateDuration <= 0) {
             if (valueAnimator != null) valueAnimator.end();
             onAnimationFraction(1f, 1f, mode, overlapMode);
@@ -382,6 +396,10 @@ public class BaseLoadingView extends FrameLayout {
         if (onMode != null) {
             onMode.onModeChange(mode);
         }
+        handler.removeMessages(998);
+        if (mode != DisplayMode.NORMAL) {
+            handler.sendEmptyMessageDelayed(998, 32);
+        }
     }
 
     private String getHintString(DisplayMode mode) {
@@ -397,34 +415,41 @@ public class BaseLoadingView extends FrameLayout {
         }
     }
 
-    private synchronized void onAnimationFraction(float duration, float offset, DisplayMode curMode, OverLapMode overLapMode) {
+    private synchronized void onAnimationFraction(final float duration, final float offset, final DisplayMode curMode, final OverLapMode overLapMode) {
         setViews(offset, curMode);
         setBackground(duration, curMode, overLapMode);
     }
 
-    private void setViews(float offset, DisplayMode curMode) {
+    private synchronized void setViews(final float offset, final DisplayMode curMode) {
+        if (curMode == DisplayMode.NONE || curMode == DisplayMode.NORMAL) {
+            return;
+        }
         for (Map.Entry<DisplayMode, Float> entry : disPlayViews.entrySet()) {
-            View curSetView = getDisplayView(entry.getKey());
-            if (curSetView != null) {
-                float curAlpha = entry.getValue();
-                float newAlpha;
-                if (entry.getKey() == curMode) {
-                    //need show
-                    if (curSetView.getVisibility() != VISIBLE) {
-                        curSetView.setVisibility(VISIBLE);
-                        curSetView.setAlpha(0);
-                    }
-                    newAlpha = Math.min(1.0f, Math.max(0.0f, curAlpha) + offset);
-                    curSetView.setAlpha(newAlpha);
-                } else {
-                    //need hide
-                    newAlpha = Math.max(Math.min(1.0f, curAlpha) - offset, 0);
-                    curSetView.setAlpha(newAlpha);
-                    if (newAlpha == 0 && curSetView.getVisibility() != GONE)
-                        curSetView.setVisibility(GONE);
-                }
-                disPlayViews.put(entry.getKey(), newAlpha);
+            final View curSetView = getDisplayView(entry.getKey());
+            if (curSetView == null) {
+                continue;
             }
+            float curAlpha = entry.getValue();
+            float newAlpha;
+            if (entry.getKey() == curMode) {
+                //need show
+                if (curSetView.getVisibility() != VISIBLE) {
+                    curSetView.setVisibility(VISIBLE);
+                    curSetView.setAlpha(0);
+                    onViewStateChanged(curSetView, true);
+                }
+                newAlpha = Math.min(1.0f, Math.max(0.0f, curAlpha) + offset);
+                curSetView.setAlpha(newAlpha);
+            } else {
+                //need hide
+                newAlpha = Math.max(Math.min(1.0f, curAlpha) - offset, 0);
+                curSetView.setAlpha(newAlpha);
+                if (newAlpha == 0 && curSetView.getVisibility() != GONE) {
+                    curSetView.setVisibility(GONE);
+                    onViewStateChanged(curSetView, false);
+                }
+            }
+            disPlayViews.put(entry.getKey(), newAlpha);
         }
     }
 
@@ -441,8 +466,15 @@ public class BaseLoadingView extends FrameLayout {
             }
         } else {
             setAlpha(1.0f - duration);
-            if (getAlpha() <= 0.05f) {
+            if (getAlpha() <= 0.0f) {
                 setAlpha(0);
+                for (Map.Entry<DisplayMode, Float> entry : disPlayViews.entrySet()) {
+                    final View curSetView = getDisplayView(entry.getKey());
+                    if (curSetView != null) {
+                        curSetView.setVisibility(View.GONE);
+                        onViewStateChanged(curSetView, false);
+                    }
+                }
                 setBackground(null);
                 setVisibility(GONE);
             }
@@ -465,6 +497,41 @@ public class BaseLoadingView extends FrameLayout {
         return (T) rootView.findViewById(id);
     }
 
+    private void onViewStateChanged(View view, boolean visible) {
+        handler.removeMessages(view.getId());
+        Message msg = Message.obtain();
+        msg.what = view.getId();
+        msg.arg1 = visible ? 0 : 1;
+        handler.sendMessage(msg);
+    }
+
+    private void setContentBgSize() {
+        int left = Integer.MAX_VALUE, top = Integer.MAX_VALUE, right = 0, bottom = 0;
+        for (int i = 0; i < contentView.getChildCount(); i++) {
+            View v = contentView.getChildAt(i);
+            if (v.getVisibility() == View.VISIBLE) {
+                left = Math.min(v.getLeft(), left);
+                top = Math.min(v.getTop(), top);
+                right = Math.max(v.getRight(), right);
+                bottom = Math.max(v.getBottom(), bottom);
+            }
+        }
+        if (left + right + top + bottom > 0) {
+            LayoutParams lp = (LayoutParams) blvChildBg.getLayoutParams();
+            float pw = cbLeftPadding + cbRightPadding;
+            lp.width = (right - left) + (int) pw;
+            lp.height = (bottom - top) + (int) (cbBottomPadding + cbTopPadding);
+            float rpd = 0f, lpd = 0f;
+            if (cbLeftPadding > cbRightPadding) {
+                rpd = cbLeftPadding - cbRightPadding;
+            } else {
+                lpd = cbRightPadding - cbLeftPadding;
+            }
+            lp.setMargins((int) lpd, (int) (top - cbTopPadding), (int) rpd, 0);
+            blvChildBg.setLayoutParams(lp);
+            Log.e("------- ", "" + left + "   " + top + "   " + right + "   " + bottom);
+        }
+    }
 
     public static class BaseLoadingValueAnimator extends ValueAnimator {
 
@@ -492,7 +559,7 @@ public class BaseLoadingView extends FrameLayout {
 
         private BaseLoadingValueAnimator(BaseLoadingAnimatorListener l) {
             this.listener = l;
-            setFloatValues(0.0f, 1.0f);
+            setFloatValues(0.0f, 1.1f);
             addListener(new AnimatorListener() {
                 @Override
                 public void onAnimationStart(Animator animation) {

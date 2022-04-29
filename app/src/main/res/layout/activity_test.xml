@@ -16,38 +16,43 @@
         android:src="@drawable/ic_launcher_background"
         tools:ignore="ContentDescription" />
 
-    <com.zj.loading.BaseLoadingView
+    <com.zj.loading.ZRotateLoadingView
         android:id="@+id/bld_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:backgroundFill="#a000"
-        app:backgroundUnderTheContent="#cac"
-        app:changeAnimDuration="300"
-        app:drawerHeight="125dp"
-        app:drawerWidth="125dp"
+        app:backgroundUnderTheContent="@drawable/loading_float_background"
+        app:changeAnimDuration="600"
+        app:contentPadding="12dp"
+        app:contentPaddingEnd="45dp"
+        app:contentPaddingStart="45dp"
+        app:drawerHeight="55dp"
+        app:drawerWidth="55dp"
         app:hintColor="#e3e3e3"
         app:hintTextSize="22sp"
-        app:loadingRes="@drawable/loading_progressbar"
         app:loadingText="@string/loading"
         app:maxRefreshTextLines="2"
         app:maxRefreshTextWidth="255dp"
         app:modeDefault="LOADING"
         app:networkErrorText="@string/noNetwork"
-        app:noDataRes="@mipmap/no_data"
         app:noDataText="@string/noData"
-        app:noNetworkRes="@mipmap/no_network"
+        app:progress_color="#cac"
         app:refreshEnable="true"
+        app:refreshNetworkText="check your network and try again \n asdhasjdhbajs \n aasdasdfads"
         app:refreshNoDataText="@string/refresh"
         app:refreshTextColor="#b7b7b7"
         app:refreshTextSize="16sp"
-        app:shownMode="overlap" />
+        app:rotate_loadingRes="@mipmap/blv_loading_white"
+        app:rotate_noDataRes="@mipmap/blv_no_data_white"
+        app:rotate_noNetworkRes="@mipmap/blv_network_error_white"
+        app:shownMode="fo" />
 
     <Button
         android:id="@+id/bt_view"
         android:layout_width="100dp"
         android:layout_height="45dp"
         android:layout_gravity="bottom|end"
-        android:text="change" />
+        android:text="@string/change" />
 
     <TextView
         android:id="@+id/tv_override"
@@ -56,6 +61,7 @@
         android:layout_gravity="bottom"
         android:gravity="center"
         android:padding="10dp"
-        android:text="OverLapMod" />
+        android:text="@string/overLapMod"
+        android:textColor="#212121" />
 
 </FrameLayout>

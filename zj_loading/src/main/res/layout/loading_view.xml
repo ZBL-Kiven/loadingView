@@ -1,124 +1,98 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_gravity="center">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_gravity="center"
+    android:clipChildren="false"
+    android:clipToPadding="false">
 
     <View
         android:id="@+id/blv_child_bg"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="@id/guide_line_2"
-        app:layout_constraintEnd_toEndOf="@id/guide_line_1"
-        app:layout_constraintStart_toStartOf="@id/guide_line_1"
-        app:layout_constraintTop_toTopOf="@id/guide_line_1" />
+        android:layout_gravity="center_horizontal" />
 
-    <View
-        android:id="@+id/guide_line_1"
-        android:layout_width="0dp"
-        android:layout_height="10dp"
-        android:clickable="false"
-        android:focusable="false"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <FrameLayout
-        android:id="@+id/blv_fl_drawer"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/blv_cl_content"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="45dp"
-        android:layout_marginEnd="45dp"
-        app:layout_constraintBottom_toTopOf="@id/blv_tvHint"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/guide_line_1">
+        android:layout_height="match_parent"
+        android:layout_gravity="center">
 
-        <ProgressBar
-            android:id="@+id/blv_pb"
-            style="@style/mProgress_circle"
+        <FrameLayout
+            android:id="@+id/blv_fl_drawer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal|bottom"
-            android:indeterminateDuration="1500"
-            android:visibility="gone" />
+            app:layout_constraintBottom_toTopOf="@id/blv_tvHint"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
 
-        <ImageView
-            android:id="@+id/blv_vNoData"
+            <ViewStub
+                android:id="@+id/blv_loading_stub"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal|bottom"
+                android:inflatedId="@+id/blv_loading" />
+
+            <ViewStub
+                android:id="@+id/blv_vNoData_stub"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal|bottom"
+                android:inflatedId="@+id/blv_vNoData" />
+
+            <ViewStub
+                android:id="@+id/blv_vNoNetwork_stub"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal|bottom"
+                android:inflatedId="@+id/blv_vNoNetwork" />
+
+        </FrameLayout>
+
+        <TextView
+            android:id="@+id/blv_tvHint"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal|bottom"
-            android:visibility="gone"
-            tools:ignore="ContentDescription" />
+            android:layout_marginTop="8dp"
+            android:gravity="center"
+            android:textColor="#FFF"
+            android:textSize="14sp"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="loading"
+            tools:visibility="visible" />
 
-        <ImageView
-            android:id="@+id/blv_vNoNetwork"
+        <TextView
+            android:id="@+id/blv_tvRefresh"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal|bottom"
-            android:visibility="gone"
-            tools:ignore="ContentDescription" />
+            android:layout_marginTop="4dp"
+            android:gravity="center"
+            android:textColor="@android:color/darker_gray"
+            android:textSize="12sp"
+            android:visibility="invisible"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/blv_tvHint"
+            tools:text="loading description"
+            tools:visibility="visible" />
 
-    </FrameLayout>
+        <Button
+            android:id="@+id/blv_btnRefresh"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:visibility="invisible"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/blv_tvRefresh"
+            tools:text="refresh"
+            tools:visibility="visible" />
 
-    <TextView
-        android:id="@+id/blv_tvHint"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="45dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="45dp"
-        android:gravity="center"
-        android:textColor="#000"
-        android:textSize="14sp"
-        android:visibility="gone"
-        app:layout_constraintBottom_toTopOf="@id/blv_tvRefresh"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/blv_fl_drawer"
-        tools:text="loading" />
-
-    <TextView
-        android:id="@+id/blv_tvRefresh"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="45dp"
-        android:layout_marginTop="4dp"
-        android:layout_marginEnd="45dp"
-        android:gravity="center"
-        android:textColor="@android:color/darker_gray"
-        android:textSize="12sp"
-        android:visibility="gone"
-        app:layout_constraintBottom_toTopOf="@id/blv_btnRefresh"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/blv_tvHint"
-        tools:text="loading description" />
-
-    <Button
-        android:id="@+id/blv_btnRefresh"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="45dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginEnd="45dp"
-        android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/blv_tvRefresh"
-        tools:text="refresh" />
-
-    <View
-        android:id="@+id/guide_line_2"
-        android:layout_width="0dp"
-        android:layout_height="10dp"
-        android:clickable="false"
-        android:focusable="false"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/blv_btnRefresh" />
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</FrameLayout>

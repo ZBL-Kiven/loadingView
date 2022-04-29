@@ -3,9 +3,11 @@
     <declare-styleable name="BaseLoadingView">
         <attr name="backgroundFill" format="color|reference" />
         <attr name="backgroundUnderTheContent" format="color|reference" />
-        <attr name="loadingRes" format="reference" />
-        <attr name="noDataRes" format="reference" />
-        <attr name="noNetworkRes" format="reference" />
+        <attr name="contentPadding" format="dimension" />
+        <attr name="contentPaddingStart" format="dimension" />
+        <attr name="contentPaddingEnd" format="dimension" />
+        <attr name="contentPaddingTop" format="dimension" />
+        <attr name="contentPaddingBottom" format="dimension" />
         <attr name="hintColor" format="color|reference" />
         <attr name="refreshTextColor" format="color|reference" />
         <attr name="loadingText" format="string" />
@@ -48,4 +50,16 @@
         <item name="android:maxHeight">100dp</item>
     </style>
 
+    <declare-styleable name="ZProgressLoadingView">
+        <attr name="progress_color" format="color" />
+        <attr name="progress_noDataRes" format="reference" />
+        <attr name="progress_noNetworkRes" format="reference" />
+    </declare-styleable>
+
+    <declare-styleable name="ZRotateLoadingView">
+        <attr name="rotate_loadingRes" format="reference" />
+        <attr name="rotate_Duration" format="integer" />
+        <attr name="rotate_noDataRes" format="reference" />
+        <attr name="rotate_noNetworkRes" format="reference" />
+    </declare-styleable>
 </resources>

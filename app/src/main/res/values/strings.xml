@@ -4,5 +4,7 @@
     <string name="noData">no data</string>
     <string name="noNetwork">network error</string>
     <string name="loading">loading</string>
-    <string name="refresh">you can set the refresh hint text in your attrs</string>
+    <string name="refresh">tap screen to refresh.</string>
+    <string name="overLapMod">OverLapMod</string>
+    <string name="change">change</string>
 </resources>

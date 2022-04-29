@@ -3,31 +3,31 @@ package com.zj.test.baseloadingview;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.*;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.zj.loading.BaseLoadingView;
-import com.zj.loading.OnTapListener;
 import com.zj.loading.DisplayMode;
+import com.zj.loading.OnTapListener;
 import com.zj.loading.OverLapMode;
 import com.zj.test.R;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    private BaseLoadingView blvView;
+    private BaseLoadingView<?, ?, ?> blvView;
     private int lapModeId = 0;
-    private OverLapMode curOverlapMod = OverLapMode.OVERLAP;
+    private OverLapMode curOverlapMod = OverLapMode.FO;
     private Toast toast = null;
     private int index;
-    private HashSet<DisplayMode> hints = new HashSet<>();
-    private List<DisplayMode> mode = new ArrayList<>();
-    private OverLapMode[] modes = new OverLapMode[]{
+    private final List<DisplayMode> mode = new ArrayList<>();
+    private final OverLapMode[] modes = new OverLapMode[]{
             OverLapMode.OVERLAP, OverLapMode.FLOATING, OverLapMode.FO
     };
 
@@ -39,14 +39,10 @@ public class MainActivity extends AppCompatActivity {
         Button btView = findViewById(R.id.bt_view);
         ImageView ivBg = findViewById(R.id.iv_bg);
         TextView tvOverride = findViewById(R.id.tv_override);
-        hints.add(DisplayMode.LOADING);
-        hints.add(DisplayMode.NO_DATA);
-        hints.add(DisplayMode.NO_NETWORK);
-        hints.add(DisplayMode.NORMAL);
-        mode.add(0, DisplayMode.NORMAL);
-        mode.add(1, DisplayMode.LOADING);
-        mode.add(2, DisplayMode.NO_DATA);
-        mode.add(3, DisplayMode.NO_NETWORK);
+        mode.add(0, DisplayMode.LOADING);
+        mode.add(1, DisplayMode.NO_DATA);
+        mode.add(2, DisplayMode.NO_NETWORK);
+        mode.add(3, DisplayMode.NORMAL);
 
         ivBg.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -75,7 +71,8 @@ public class MainActivity extends AppCompatActivity {
         tvOverride.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                curOverlapMod = modes[++lapModeId % 3];
+                curOverlapMod = modes[lapModeId % 3];
+                ++lapModeId;
             }
         });
     }
