@@ -4,13 +4,12 @@ import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewStub;
 import android.view.animation.Animation;
 import android.widget.ImageView;
 
-public class ZRotateLoadingView extends BaseLoadingView<ImageView, ImageView, ImageView> implements ValueAnimator.AnimatorUpdateListener {
+public final class ZRotateLoadingView extends ZLoadingView<ImageView, ImageView, ImageView> implements ValueAnimator.AnimatorUpdateListener {
 
     private int noDataRes = -1, noNetworkRes = -1, loadingRes = -1, duration = 1000;
     private ValueAnimator anim;
@@ -26,7 +25,6 @@ public class ZRotateLoadingView extends BaseLoadingView<ImageView, ImageView, Im
     public ZRotateLoadingView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         initAttrs(context, attrs);
-        initView();
     }
 
     private void initAttrs(Context context, AttributeSet attrs) {
@@ -41,7 +39,8 @@ public class ZRotateLoadingView extends BaseLoadingView<ImageView, ImageView, Im
         }
     }
 
-    private void initView() {
+    @Override
+    public void onViewInflated() {
         loading.setImageResource(loadingRes);
         noData.setImageResource(noDataRes);
         noNetwork.setImageResource(noNetworkRes);
@@ -85,7 +84,6 @@ public class ZRotateLoadingView extends BaseLoadingView<ImageView, ImageView, Im
         }
         if (!anim.isStarted()) anim.start();
     }
-
 
     private void stopAnim() {
         if (anim != null) {

@@ -10,7 +10,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.zj.loading.BaseLoadingView;
+import com.zj.loading.ZLoadingView;
 import com.zj.loading.DisplayMode;
 import com.zj.loading.OnTapListener;
 import com.zj.loading.OverLapMode;
@@ -21,7 +21,7 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    private BaseLoadingView<?, ?, ?> blvView;
+    private ZLoadingView<?, ?, ?> blvView;
     private int lapModeId = 0;
     private OverLapMode curOverlapMod = OverLapMode.FO;
     private Toast toast = null;

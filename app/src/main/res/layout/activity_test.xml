@@ -16,7 +16,7 @@
         android:src="@drawable/ic_launcher_background"
         tools:ignore="ContentDescription" />
 
-    <com.zj.loading.ZRotateLoadingView
+    <com.zj.loading.ZProgressLoadingView
         android:id="@+id/bld_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -36,16 +36,19 @@
         app:modeDefault="LOADING"
         app:networkErrorText="@string/noNetwork"
         app:noDataText="@string/noData"
-        app:progress_color="#cac"
+        app:progress_layout="@layout/test_pink_pb"
+        app:progress_noDataRes="@mipmap/blv_no_data_white"
+        app:progress_noNetworkRes="@mipmap/blv_network_error_white"
         app:refreshEnable="true"
         app:refreshNetworkText="check your network and try again \n asdhasjdhbajs \n aasdasdfads"
         app:refreshNoDataText="@string/refresh"
         app:refreshTextColor="#b7b7b7"
         app:refreshTextSize="16sp"
-        app:rotate_loadingRes="@mipmap/blv_loading_white"
-        app:rotate_noDataRes="@mipmap/blv_no_data_white"
-        app:rotate_noNetworkRes="@mipmap/blv_network_error_white"
         app:shownMode="fo" />
+
+    <!--    app:rotate_loadingRes="@mipmap/blv_loading_white"-->
+    <!--    app:rotate_noDataRes="@mipmap/blv_no_data_white"-->
+    <!--    app:rotate_noNetworkRes="@mipmap/blv_network_error_white"-->
 
     <Button
         android:id="@+id/bt_view"

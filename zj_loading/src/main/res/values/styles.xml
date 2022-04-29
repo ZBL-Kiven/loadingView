@@ -1,6 +1,6 @@
 <resources>
 
-    <declare-styleable name="BaseLoadingView">
+    <declare-styleable name="ZLoadingView">
         <attr name="backgroundFill" format="color|reference" />
         <attr name="backgroundUnderTheContent" format="color|reference" />
         <attr name="contentPadding" format="dimension" />
@@ -51,7 +51,7 @@
     </style>
 
     <declare-styleable name="ZProgressLoadingView">
-        <attr name="progress_color" format="color" />
+        <attr name="progress_layout" format="reference" />
         <attr name="progress_noDataRes" format="reference" />
         <attr name="progress_noNetworkRes" format="reference" />
     </declare-styleable>

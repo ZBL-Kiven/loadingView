@@ -1,9 +1,6 @@
 <p align="center" >
    <img src = "https://github.com/ZBL-Kiven/loadingView/raw/master/demo/title.png"/>
    <br>
-   <a href = "http://cityfruit.io/">
-   <img src = "https://img.shields.io/static/v1?label=By&message=CityFruit.io&color=2af"/>
-   </a>
    <a href = "https://github.com/ZBL-Kiven/loadingView">
       <img src = "https://img.shields.io/static/v1?label=platform&message=Android&color=6bf"/>
    </a>
@@ -11,16 +8,16 @@
       <img src = "https://img.shields.io/static/v1?label=author&message=ZJJ&color=9cf"/>
   </a>
   <a href = "https://developer.android.google.cn/jetpack/androidx">
-      <img src = "https://img.shields.io/static/v1?label=supported&message=AndroidX&color=8ce"/>
+      <img src = "https://img.shields.io/static/v1?label=Category&message=View&color=8ce"/>
   </a>
   <a href = "https://www.android-doc.com/guide/components/android7.0.html">
-      <img src = "https://img.shields.io/static/v1?label=minVersion&message=Nougat&color=cce"/>
+      <img src = "https://img.shields.io/static/v1?label=Newest&message=1.3.0&color=cce"/>
   </a>
 </p>
  
 ## Introduction：
 
-###### LoadingView 旨在为开发快速集成超轻量级加载过渡框架，很多项目中因协作开发或开发水平的参差不齐，导致在进行快速敏捷开发过程中出现五花八门的过渡效果甚至没有过渡动画，对用户体验造成极大的影响。该控件可在任何场景下实现页面的优雅过渡，且经过特殊算法处理后，在动画切换期间不会出现间断，使用效果非常棒。
+###### ZLoadingView 旨在为开发快速集成超轻量级加载过渡框架，很多项目中因协作开发或开发水平的参差不齐，导致在进行快速开发过程中出现五花八门的过渡效果甚至没有过渡动画，对用户体验造成极大的影响。该控件可在任何场景下实现页面的优雅过渡，同时具有高扩展、高定制化的优势。
 
 
 ## Features：
@@ -77,7 +74,7 @@ implementation project(":zj_loading")
 > 通过xml使用：
  
 ```xml
-<com.zj.loading.BaseLoadingView
+<com.zj.loading.ZLoadingView
             android:id="@+id/bld_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

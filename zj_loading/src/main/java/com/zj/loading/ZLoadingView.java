@@ -5,7 +5,6 @@ import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Color;
-import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Looper;
@@ -27,22 +26,21 @@ import java.util.Map;
 /**
  * @author ZJJ on 2018/7/3.
  */
-@SuppressWarnings({"unused", "unchecked"})
-public abstract class BaseLoadingView<L extends View, N extends View, E extends View> extends FrameLayout {
+@SuppressWarnings("unused")
+public abstract class ZLoadingView<L extends View, N extends View, E extends View> extends FrameLayout {
 
-    public BaseLoadingView(Context context) {
+    public ZLoadingView(Context context) {
         this(context, null, 0);
     }
 
-    public BaseLoadingView(Context context, AttributeSet attrs) {
+    public ZLoadingView(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public BaseLoadingView(Context context, AttributeSet attrs, int defStyleAttr) {
+    public ZLoadingView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init(context, attrs);
         initView(context);
-        initAbsViews();
         //noinspection NullableProblems
         handler = new Handler(Looper.getMainLooper()) {
             @Override
@@ -54,7 +52,12 @@ public abstract class BaseLoadingView<L extends View, N extends View, E extends 
                 }
             }
         };
-        setMode(modeDefault, true);
+        post(new Runnable() {
+            @Override
+            public void run() {
+                initAbsViews();
+            }
+        });
     }
 
     private TextView tvHint, tvRefresh;
@@ -93,6 +96,8 @@ public abstract class BaseLoadingView<L extends View, N extends View, E extends 
 
     public abstract void inflateNetworkErrorView(ViewStub stub, float drawerWidth, float drawerHeight);
 
+    protected abstract void onViewInflated();
+
     public void onViewVisibilityChanged(int viewId, boolean visible) {
     }
 
@@ -122,8 +127,8 @@ public abstract class BaseLoadingView<L extends View, N extends View, E extends 
         (btnEnable ? btnRefresh : this).setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (refreshEnable && refreshEnableWithView && BaseLoadingView.this.refresh != null) {
-                    BaseLoadingView.this.refresh.onTap();
+                if (refreshEnable && refreshEnableWithView && ZLoadingView.this.refresh != null) {
+                    ZLoadingView.this.refresh.onTap();
                 }
             }
         });
@@ -138,43 +143,43 @@ public abstract class BaseLoadingView<L extends View, N extends View, E extends 
 
     private void init(Context context, AttributeSet attrs) {
         if (attrs != null) {
-            TypedArray array = context.obtainStyledAttributes(attrs, R.styleable.BaseLoadingView);
+            TypedArray array = context.obtainStyledAttributes(attrs, R.styleable.ZLoadingView);
             try {
-                bg = array.getDrawable(R.styleable.BaseLoadingView_backgroundFill);
-                refreshTextSize = array.getDimension(R.styleable.BaseLoadingView_refreshTextSize, 48f);
-                drawerWidth = array.getDimension(R.styleable.BaseLoadingView_drawerWidth, -1);
-                drawerHeight = array.getDimension(R.styleable.BaseLoadingView_drawerHeight, -1);
-                refreshTextColor = array.getColor(R.styleable.BaseLoadingView_refreshTextColor, -1);
-                loadingHint = array.getString(R.styleable.BaseLoadingView_loadingText);
-                noDataHint = array.getString(R.styleable.BaseLoadingView_noDataText);
-                networkErrorHint = array.getString(R.styleable.BaseLoadingView_networkErrorText);
-                shownModeDefault = array.getInt(R.styleable.BaseLoadingView_shownMode, 0);
-                refreshEnable = array.getBoolean(R.styleable.BaseLoadingView_refreshEnable, true);
-                refreshNoDataText = array.getString(R.styleable.BaseLoadingView_refreshNoDataText);
-                refreshNetworkText = array.getString(R.styleable.BaseLoadingView_refreshNetworkText);
-                animateDuration = array.getInt(R.styleable.BaseLoadingView_changeAnimDuration, 400);
-                hintTextColor = array.getColor(R.styleable.BaseLoadingView_hintColor, -1);
-                hintTextSize = array.getDimension(R.styleable.BaseLoadingView_hintTextSize, 24f);
-                btnEnable = array.getBoolean(R.styleable.BaseLoadingView_btnEnable, false);
-                maxRefreshTextWidth = array.getDimension(R.styleable.BaseLoadingView_maxRefreshTextWidth, -1);
-                maxRefreshTextLines = array.getInt(R.styleable.BaseLoadingView_maxRefreshTextLines, -1);
-                maxHintTextWidth = array.getDimension(R.styleable.BaseLoadingView_maxHintTextWidth, -1);
-                maxHintTextLines = array.getInt(R.styleable.BaseLoadingView_maxHintTextLines, -1);
+                bg = array.getDrawable(R.styleable.ZLoadingView_backgroundFill);
+                refreshTextSize = array.getDimension(R.styleable.ZLoadingView_refreshTextSize, 48f);
+                drawerWidth = array.getDimension(R.styleable.ZLoadingView_drawerWidth, -1);
+                drawerHeight = array.getDimension(R.styleable.ZLoadingView_drawerHeight, -1);
+                refreshTextColor = array.getColor(R.styleable.ZLoadingView_refreshTextColor, -1);
+                loadingHint = array.getString(R.styleable.ZLoadingView_loadingText);
+                noDataHint = array.getString(R.styleable.ZLoadingView_noDataText);
+                networkErrorHint = array.getString(R.styleable.ZLoadingView_networkErrorText);
+                shownModeDefault = array.getInt(R.styleable.ZLoadingView_shownMode, 0);
+                refreshEnable = array.getBoolean(R.styleable.ZLoadingView_refreshEnable, true);
+                refreshNoDataText = array.getString(R.styleable.ZLoadingView_refreshNoDataText);
+                refreshNetworkText = array.getString(R.styleable.ZLoadingView_refreshNetworkText);
+                animateDuration = array.getInt(R.styleable.ZLoadingView_changeAnimDuration, 400);
+                hintTextColor = array.getColor(R.styleable.ZLoadingView_hintColor, -1);
+                hintTextSize = array.getDimension(R.styleable.ZLoadingView_hintTextSize, 24f);
+                btnEnable = array.getBoolean(R.styleable.ZLoadingView_btnEnable, false);
+                maxRefreshTextWidth = array.getDimension(R.styleable.ZLoadingView_maxRefreshTextWidth, -1);
+                maxRefreshTextLines = array.getInt(R.styleable.ZLoadingView_maxRefreshTextLines, -1);
+                maxHintTextWidth = array.getDimension(R.styleable.ZLoadingView_maxHintTextWidth, -1);
+                maxHintTextLines = array.getInt(R.styleable.ZLoadingView_maxHintTextLines, -1);
 
-                bgOnContent = array.getDrawable(R.styleable.BaseLoadingView_backgroundUnderTheContent);
-                float contentPadding = array.getDimension(R.styleable.BaseLoadingView_contentPadding, 0f);
-                cbLeftPadding = array.getDimension(R.styleable.BaseLoadingView_contentPaddingStart, contentPadding);
-                cbRightPadding = array.getDimension(R.styleable.BaseLoadingView_contentPaddingEnd, contentPadding);
-                cbTopPadding = array.getDimension(R.styleable.BaseLoadingView_contentPaddingTop, contentPadding);
-                cbBottomPadding = array.getDimension(R.styleable.BaseLoadingView_contentPaddingBottom, contentPadding);
+                bgOnContent = array.getDrawable(R.styleable.ZLoadingView_backgroundUnderTheContent);
+                float contentPadding = array.getDimension(R.styleable.ZLoadingView_contentPadding, 0f);
+                cbLeftPadding = array.getDimension(R.styleable.ZLoadingView_contentPaddingStart, contentPadding);
+                cbRightPadding = array.getDimension(R.styleable.ZLoadingView_contentPaddingEnd, contentPadding);
+                cbTopPadding = array.getDimension(R.styleable.ZLoadingView_contentPaddingTop, contentPadding);
+                cbBottomPadding = array.getDimension(R.styleable.ZLoadingView_contentPaddingBottom, contentPadding);
 
                 if (btnEnable) {
-                    btnBg = array.getDrawable(R.styleable.BaseLoadingView_btnBackground);
-                    btnText = array.getString(R.styleable.BaseLoadingView_btnText);
-                    btnTextSize = array.getDimension(R.styleable.BaseLoadingView_btnTextSize, 36f);
-                    btnTextColor = array.getColor(R.styleable.BaseLoadingView_btnTextColor, Color.BLACK);
+                    btnBg = array.getDrawable(R.styleable.ZLoadingView_btnBackground);
+                    btnText = array.getString(R.styleable.ZLoadingView_btnText);
+                    btnTextSize = array.getDimension(R.styleable.ZLoadingView_btnTextSize, 36f);
+                    btnTextColor = array.getColor(R.styleable.ZLoadingView_btnTextColor, Color.BLACK);
                 }
-                int mode = array.getInt(R.styleable.BaseLoadingView_modeDefault, DisplayMode.NONE.value);
+                int mode = array.getInt(R.styleable.ZLoadingView_modeDefault, DisplayMode.NONE.value);
                 for (DisplayMode m : DisplayMode.values()) {
                     if (mode == m.value) {
                         modeDefault = m;
@@ -231,30 +236,6 @@ public abstract class BaseLoadingView<L extends View, N extends View, E extends 
         }
     }
 
-    private void resetBackground(OverLapMode mode) {
-        setBackground((mode == OverLapMode.OVERLAP || mode == OverLapMode.FO) ? bg : null);
-        Drawable drawable = (mode == OverLapMode.FLOATING || mode == OverLapMode.FO) ? bgOnContent : null;
-        blvChildBg.setBackground(drawable);
-        blvChildBg.setVisibility((drawable == null) ? View.GONE : View.VISIBLE);
-    }
-
-    private final BaseLoadingAnimatorListener listener = new BaseLoadingAnimatorListener() {
-
-        @Override
-        public void onDurationChange(ValueAnimator animation, float offset, DisplayMode mode, OverLapMode overLapMode) {
-            synchronized (BaseLoadingView.this) {
-                onAnimationFraction(animation.getAnimatedFraction(), offset, mode, overLapMode);
-            }
-        }
-
-        @Override
-        public void onAnimEnd(Animator animation, DisplayMode mode, OverLapMode overLapMode) {
-            synchronized (BaseLoadingView.this) {
-                onAnimationFraction(1.0f, 1.0f, mode, overLapMode);
-            }
-        }
-    };
-
     private void initAbsViews() {
         if (loading == null) {
             int inflated = loadingStub.getInflatedId();
@@ -274,14 +255,40 @@ public abstract class BaseLoadingView<L extends View, N extends View, E extends 
             noNetwork = f(inflated);
             noNetwork.setVisibility(View.GONE);
         }
+        onViewInflated();
+        setMode(modeDefault, true);
     }
+
+    private void resetBackground(OverLapMode mode) {
+        setBackground((mode == OverLapMode.OVERLAP || mode == OverLapMode.FO) ? bg : null);
+        Drawable drawable = (mode == OverLapMode.FLOATING || mode == OverLapMode.FO) ? bgOnContent : null;
+        blvChildBg.setBackground(drawable);
+        blvChildBg.setVisibility((drawable == null) ? View.GONE : View.VISIBLE);
+    }
+
+    private final BaseLoadingAnimatorListener listener = new BaseLoadingAnimatorListener() {
+
+        @Override
+        public void onDurationChange(ValueAnimator animation, float offset, DisplayMode mode, OverLapMode overLapMode) {
+            synchronized (ZLoadingView.this) {
+                onAnimationFraction(animation.getAnimatedFraction(), offset, mode);
+            }
+        }
+
+        @Override
+        public void onAnimEnd(Animator animation, DisplayMode mode, OverLapMode overLapMode) {
+            synchronized (ZLoadingView.this) {
+                onAnimationFraction(1.0f, 1.0f, mode);
+            }
+        }
+    };
 
     public void setMode(DisplayMode mode, boolean isSetNow) {
         setMode(mode, "", "", isSetNow);
     }
 
     public void setMode(DisplayMode mode, String hint, boolean isSetNow) {
-        setMode(mode, hint, "");
+        setMode(mode, hint, "", isSetNow);
     }
 
     public void setMode(DisplayMode mode, OverLapMode overlapMode, boolean isSetNow) {
@@ -336,11 +343,11 @@ public abstract class BaseLoadingView<L extends View, N extends View, E extends 
             handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    BaseLoadingView.this.setLoadingMode(mode, hint, subHint, overlapMode, isSetNow);
+                    ZLoadingView.this.setLoadingMode(mode, hint, subHint, overlapMode, isSetNow);
                 }
             }, delay);
         } else {
-            BaseLoadingView.this.setLoadingMode(mode, hint, subHint, overlapMode, isSetNow);
+            ZLoadingView.this.setLoadingMode(mode, hint, subHint, overlapMode, isSetNow);
         }
         mode.reset();
     }
@@ -382,7 +389,7 @@ public abstract class BaseLoadingView<L extends View, N extends View, E extends 
         if (mode != DisplayMode.NORMAL) disPlayViews.put(mode, 0.0f);
         if (isSetNow || animateDuration <= 0) {
             if (valueAnimator != null) valueAnimator.end();
-            onAnimationFraction(1f, 1f, mode, overlapMode);
+            onAnimationFraction(1f, 1f, mode);
         } else {
             if (valueAnimator == null) {
                 valueAnimator = new BaseLoadingValueAnimator(listener);
@@ -415,9 +422,9 @@ public abstract class BaseLoadingView<L extends View, N extends View, E extends 
         }
     }
 
-    private synchronized void onAnimationFraction(final float duration, final float offset, final DisplayMode curMode, final OverLapMode overLapMode) {
+    private synchronized void onAnimationFraction(final float duration, final float offset, final DisplayMode curMode) {
         setViews(offset, curMode);
-        setBackground(duration, curMode, overLapMode);
+        setBackground(duration, curMode);
     }
 
     private synchronized void setViews(final float offset, final DisplayMode curMode) {
@@ -453,7 +460,7 @@ public abstract class BaseLoadingView<L extends View, N extends View, E extends 
         }
     }
 
-    private void setBackground(float duration, DisplayMode curMode, OverLapMode overLapMode) {
+    private void setBackground(float duration, DisplayMode curMode) {
         if (curMode != DisplayMode.NORMAL) {
             if (getVisibility() != VISIBLE) {
                 setAlpha(0);
@@ -493,6 +500,7 @@ public abstract class BaseLoadingView<L extends View, N extends View, E extends 
         return null;
     }
 
+    @SuppressWarnings("unchecked")
     private <T extends View> T f(int id) {
         return (T) rootView.findViewById(id);
     }
@@ -597,10 +605,6 @@ public abstract class BaseLoadingView<L extends View, N extends View, E extends 
                     }
                 }
             });
-        }
-
-        public void setAnimatorListener(BaseLoadingAnimatorListener listener) {
-            this.listener = listener;
         }
     }
 
