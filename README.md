@@ -8,7 +8,7 @@
       <img src = "https://img.shields.io/static/v1?label=author&message=ZJJ&color=9cf"/>
   </a>
   <a href = "https://github.com/ZBL-Kiven/loadingView/raw/master/demo/demo.apk">
-      <img src = "https://img.shields.io/static/v1?label=Newest&message=1.3.0&color=cce"/>
+      <img src = "https://img.shields.io/static/v1?label=Newest&message=1.3.1&color=cce"/>
   </a>
 </p>
 

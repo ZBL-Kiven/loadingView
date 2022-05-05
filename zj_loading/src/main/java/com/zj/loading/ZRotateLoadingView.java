@@ -100,6 +100,8 @@ public final class ZRotateLoadingView extends ZLoadingView<ImageView, ImageView,
             float fraction = animation.getAnimatedFraction();
             float curRotate = fraction * 360.0f;
             loading.setRotation(curRotate);
+        } else {
+            stopAnim();
         }
     }
 }
