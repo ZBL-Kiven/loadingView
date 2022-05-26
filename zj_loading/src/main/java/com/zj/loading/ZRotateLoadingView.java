@@ -40,31 +40,6 @@ public final class ZRotateLoadingView extends ZLoadingView<ImageView, ImageView,
     }
 
     @Override
-    public void onViewInflated() {
-        loading.setImageResource(loadingRes);
-        noData.setImageResource(noDataRes);
-        noNetwork.setImageResource(noNetworkRes);
-    }
-
-    @Override
-    public void inflateLoadingView(ViewStub stub, float drawerWidth, float drawerHeight) {
-        stub.setLayoutResource(R.layout.blv_simple_iv);
-        stub.inflate();
-    }
-
-    @Override
-    public void inflateNoDataView(ViewStub stub, float drawerWidth, float drawerHeight) {
-        stub.setLayoutResource(R.layout.blv_simple_iv);
-        stub.inflate();
-    }
-
-    @Override
-    public void inflateNetworkErrorView(ViewStub stub, float drawerWidth, float drawerHeight) {
-        stub.setLayoutResource(R.layout.blv_simple_iv);
-        stub.inflate();
-    }
-
-    @Override
     public void onViewVisibilityChanged(int viewId, boolean visible) {
         if (viewId == loading.getId()) {
             if (visible) {
@@ -74,6 +49,32 @@ public final class ZRotateLoadingView extends ZLoadingView<ImageView, ImageView,
             }
         }
     }
+
+    @Override
+    public void inflateLoadingView(ViewStub stub, float loadingWidth, float loadingHeight) {
+        stub.setLayoutResource(R.layout.blv_simple_iv);
+        stub.inflate();
+    }
+
+    @Override
+    public void inflateNoDataView(ViewStub stub, float noDataWidth, float noDataHeight) {
+        stub.setLayoutResource(R.layout.blv_simple_iv);
+        stub.inflate();
+    }
+
+    @Override
+    public void inflateNetworkErrorView(ViewStub stub, float netErrWidth, float netErrHeight) {
+        stub.setLayoutResource(R.layout.blv_simple_iv);
+        stub.inflate();
+    }
+
+    @Override
+    public void onViewInflated() {
+        loading.setImageResource(loadingRes);
+        noData.setImageResource(noDataRes);
+        noNetwork.setImageResource(noNetworkRes);
+    }
+
 
     private void initAndStartAnim() {
         if (anim == null) {

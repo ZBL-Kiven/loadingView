@@ -24,19 +24,20 @@ public class CusLoadingView extends ZLoadingView<SurfaceView, ImageView, TextVie
     }
 
     @Override
-    public void inflateLoadingView(ViewStub stub, float drawerWidth, float drawerHeight) {
+    public void inflateLoadingView(ViewStub stub, float loadingWidth, float loadingHeight) {
 
     }
 
     @Override
-    public void inflateNoDataView(ViewStub stub, float drawerWidth, float drawerHeight) {
+    public void inflateNoDataView(ViewStub stub, float noDataWidth, float noDataHeight) {
 
     }
 
     @Override
-    public void inflateNetworkErrorView(ViewStub stub, float drawerWidth, float drawerHeight) {
+    public void inflateNetworkErrorView(ViewStub stub, float netErrWidth, float netErrHeight) {
 
     }
+
 
     @Override
     protected void onViewInflated() {

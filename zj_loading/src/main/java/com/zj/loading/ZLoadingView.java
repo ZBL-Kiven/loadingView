@@ -41,6 +41,9 @@ public abstract class ZLoadingView<L extends View, N extends View, E extends Vie
         super(context, attrs, defStyleAttr);
         init(context, attrs);
         initView(context);
+        if (!isInEditMode()) {
+            this.setVisibility(View.GONE);
+        }
         //noinspection NullableProblems
         handler = new Handler(Looper.getMainLooper()) {
             @Override
@@ -80,21 +83,22 @@ public abstract class ZLoadingView<L extends View, N extends View, E extends Vie
     private int shownModeDefault = 0;
     private int hintTextColor, refreshTextColor, btnTextColor;
     private String loadingHint = "", noDataHint = "", networkErrorHint = "", refreshNoDataText = "", refreshNetworkText = "", btnText = "";
-    private float hintTextSize, refreshTextSize, btnTextSize, drawerWidth, drawerHeight;
+    private float hintTextSize, refreshTextSize, btnTextSize;
     private float maxRefreshTextWidth, maxHintTextWidth;
     private int maxRefreshTextLines, maxHintTextLines;
     private boolean refreshEnable = true;
     private boolean btnEnable = false;
     private boolean refreshEnableWithView = false;
     private DisplayMode modeDefault = DisplayMode.NONE;
+    private int drawerWidth, drawerHeight, loadingWidth, loadingHeight, noDataWidth, noDataHeight, netErrWidth, netErrHeight;
 
     private BaseLoadingValueAnimator valueAnimator;
 
-    public abstract void inflateLoadingView(ViewStub stub, float drawerWidth, float drawerHeight);
+    public abstract void inflateLoadingView(ViewStub stub, float loadingWidth, float loadingHeight);
 
-    public abstract void inflateNoDataView(ViewStub stub, float drawerWidth, float drawerHeight);
+    public abstract void inflateNoDataView(ViewStub stub, float noDataWidth, float noDataHeight);
 
-    public abstract void inflateNetworkErrorView(ViewStub stub, float drawerWidth, float drawerHeight);
+    public abstract void inflateNetworkErrorView(ViewStub stub, float netErrWidth, float netErrHeight);
 
     protected abstract void onViewInflated();
 
@@ -147,8 +151,8 @@ public abstract class ZLoadingView<L extends View, N extends View, E extends Vie
             try {
                 bg = array.getDrawable(R.styleable.ZLoadingView_backgroundFill);
                 refreshTextSize = array.getDimension(R.styleable.ZLoadingView_refreshTextSize, 48f);
-                drawerWidth = array.getDimension(R.styleable.ZLoadingView_drawerWidth, -1);
-                drawerHeight = array.getDimension(R.styleable.ZLoadingView_drawerHeight, -1);
+                drawerWidth = array.getDimensionPixelSize(R.styleable.ZLoadingView_drawerWidth, -1);
+                drawerHeight = array.getDimensionPixelSize(R.styleable.ZLoadingView_drawerHeight, -1);
                 refreshTextColor = array.getColor(R.styleable.ZLoadingView_refreshTextColor, -1);
                 loadingHint = array.getString(R.styleable.ZLoadingView_loadingText);
                 noDataHint = array.getString(R.styleable.ZLoadingView_noDataText);
@@ -165,6 +169,44 @@ public abstract class ZLoadingView<L extends View, N extends View, E extends Vie
                 maxRefreshTextLines = array.getInt(R.styleable.ZLoadingView_maxRefreshTextLines, -1);
                 maxHintTextWidth = array.getDimension(R.styleable.ZLoadingView_maxHintTextWidth, -1);
                 maxHintTextLines = array.getInt(R.styleable.ZLoadingView_maxHintTextLines, -1);
+
+                int lw = 0;
+                try {
+                    lw = array.getInt(R.styleable.ZLoadingView_loading_width, 0);
+                } catch (Exception ignored) {
+                }
+                int lh = 0;
+                try {
+                    lh = array.getInt(R.styleable.ZLoadingView_loading_height, 0);
+                } catch (Exception ignored) {
+                }
+                int nw = 0;
+                try {
+                    nw = array.getInt(R.styleable.ZLoadingView_no_data_width, 0);
+                } catch (Exception ignored) {
+                }
+                int nh = 0;
+                try {
+                    nh = array.getInt(R.styleable.ZLoadingView_no_data_height, 0);
+                } catch (Exception ignored) {
+                }
+                int ew = 0;
+                try {
+                    ew = array.getInt(R.styleable.ZLoadingView_network_error_width, 0);
+                } catch (Exception ignored) {
+                }
+                int eh = 0;
+                try {
+                    eh = array.getInt(R.styleable.ZLoadingView_network_error_height, 0);
+                } catch (Exception ignored) {
+                }
+
+                loadingWidth = lw == 0 ? array.getDimensionPixelSize(R.styleable.ZLoadingView_loading_width, -2) : lw;
+                loadingHeight = lh == 0 ? array.getDimensionPixelSize(R.styleable.ZLoadingView_loading_height, -2) : lh;
+                noDataWidth = nw == 0 ? array.getDimensionPixelSize(R.styleable.ZLoadingView_no_data_width, -2) : nw;
+                noDataHeight = nh == 0 ? array.getDimensionPixelSize(R.styleable.ZLoadingView_no_data_height, -2) : nh;
+                netErrWidth = ew == 0 ? array.getDimensionPixelSize(R.styleable.ZLoadingView_network_error_width, -2) : ew;
+                netErrHeight = eh == 0 ? array.getDimensionPixelSize(R.styleable.ZLoadingView_network_error_height, -2) : eh;
 
                 bgOnContent = array.getDrawable(R.styleable.ZLoadingView_backgroundUnderTheContent);
                 float contentPadding = array.getDimension(R.styleable.ZLoadingView_contentPadding, 0f);
@@ -205,8 +247,8 @@ public abstract class ZLoadingView<L extends View, N extends View, E extends Vie
         View blvFlDrawer = f(R.id.blv_fl_drawer);
         if (drawerWidth > 0 && drawerHeight > 0) {
             ViewGroup.LayoutParams lp = blvFlDrawer.getLayoutParams();
-            lp.width = (int) (drawerWidth + 0.5f);
-            lp.height = (int) (drawerHeight + 0.5f);
+            lp.width = drawerWidth;
+            lp.height = drawerHeight;
             blvFlDrawer.setLayoutParams(lp);
         }
         disPlayViews = new HashMap<>();
@@ -239,24 +281,36 @@ public abstract class ZLoadingView<L extends View, N extends View, E extends Vie
     private void initAbsViews() {
         if (loading == null) {
             int inflated = loadingStub.getInflatedId();
-            inflateLoadingView(loadingStub, drawerWidth, drawerHeight);
+            inflateLoadingView(loadingStub, loadingWidth, loadingHeight);
             loading = f(inflated);
+            resetLayoutParams(loading, loadingWidth, loadingHeight);
             loading.setVisibility(View.GONE);
         }
         if (noData == null) {
             int inflated = noDataStub.getInflatedId();
-            inflateNoDataView(noDataStub, drawerWidth, drawerHeight);
+            inflateNoDataView(noDataStub, noDataWidth, noDataHeight);
             noData = f(inflated);
+            resetLayoutParams(noData, noDataWidth, noDataHeight);
             noData.setVisibility(View.GONE);
         }
         if (noNetwork == null) {
             int inflated = noNetworkStub.getInflatedId();
-            inflateNetworkErrorView(noNetworkStub, drawerWidth, drawerHeight);
+            inflateNetworkErrorView(noNetworkStub, netErrWidth, netErrHeight);
             noNetwork = f(inflated);
+            resetLayoutParams(noNetwork, netErrWidth, netErrHeight);
             noNetwork.setVisibility(View.GONE);
         }
         onViewInflated();
-        setMode(modeDefault, true);
+        if (isInEditMode()) {
+            setMode(modeDefault, true);
+        }
+    }
+
+    private void resetLayoutParams(View view, int width, int height) {
+        ViewGroup.LayoutParams lp = view.getLayoutParams();
+        lp.width = width == ViewGroup.LayoutParams.WRAP_CONTENT ? drawerWidth : width;
+        lp.height = height == ViewGroup.LayoutParams.MATCH_PARENT ? drawerHeight : height;
+        view.setLayoutParams(lp);
     }
 
     private void resetBackground(OverLapMode mode) {
@@ -500,9 +554,8 @@ public abstract class ZLoadingView<L extends View, N extends View, E extends Vie
         return null;
     }
 
-    @SuppressWarnings("unchecked")
     private <T extends View> T f(int id) {
-        return (T) rootView.findViewById(id);
+        return rootView.findViewById(id);
     }
 
     private void onViewStateChanged(View view, boolean visible) {

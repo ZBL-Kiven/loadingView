@@ -34,6 +34,31 @@
         <attr name="refreshTextSize" format="dimension" />
         <attr name="hintTextSize" format="dimension" />
 
+        <attr name="loading_width" format="dimension|enum">
+            <enum name="wrap_content" value="-2" />
+            <enum name="match_of_drawer" value="-1" />
+        </attr>
+        <attr name="loading_height" format="dimension|enum">
+            <enum name="wrap_content" value="-2" />
+            <enum name="match_of_drawer" value="-1" />
+        </attr>
+        <attr name="no_data_width" format="dimension|enum">
+            <enum name="wrap_content" value="-2" />
+            <enum name="match_of_drawer" value="-1" />
+        </attr>
+        <attr name="no_data_height" format="dimension|enum">
+            <enum name="wrap_content" value="-2" />
+            <enum name="match_of_drawer" value="-1" />
+        </attr>
+        <attr name="network_error_width" format="dimension|enum">
+            <enum name="wrap_content" value="-2" />
+            <enum name="match_of_drawer" value="-1" />
+        </attr>
+        <attr name="network_error_height" format="dimension|enum">
+            <enum name="wrap_content" value="-2" />
+            <enum name="match_of_drawer" value="-1" />
+        </attr>
+
         <attr name="drawerWidth" format="dimension" />
         <attr name="drawerHeight" format="dimension" />
         <attr name="modeDefault" format="enum">

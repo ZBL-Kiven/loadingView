@@ -73,6 +73,12 @@ dependencies {
         app:refreshTextColor="#b7b7b7" // 刷新提示文本的字色
         app:refreshTextSize="16sp" // 刷新提示文本的字号
         app:shownMode="fo" // 弹出模式，弹窗、全屏、全屏+弹窗。
+        app:loading_width="match_of_drawer" //刷新控件的宽度，max 为 drawerWidth.
+        app:loading_height="match_of_drawer" //刷新控件的高度，max 为 drawerHeight.
+        app:no_data_width="match_of_drawer" //提示无数据控件的宽度，max 为 drawerWidth.
+        app:no_data_height="match_of_drawer" //提示无数据控件的高度，max 为 drawerHeight.
+        app:network_error_width="match_of_drawer" //提示网络异常控件的宽度，max 为 drawerWidth.
+        app:network_error_height="match_of_drawer" //提示网络异常控件的高度，max 为 drawerHeight.
 />
 ```
 

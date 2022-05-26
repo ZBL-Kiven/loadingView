@@ -16,7 +16,7 @@
         android:src="@drawable/ic_launcher_background"
         tools:ignore="ContentDescription" />
 
-    <com.zj.loading.ZProgressLoadingView
+    <com.zj.loading.ZRotateLoadingView
         android:id="@+id/bld_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -33,17 +33,31 @@
         app:loadingText="@string/loading"
         app:maxRefreshTextLines="2"
         app:maxRefreshTextWidth="255dp"
-        app:modeDefault="LOADING"
         app:networkErrorText="@string/noNetwork"
+
         app:noDataText="@string/noData"
+
         app:progress_layout="@layout/test_pink_pb"
         app:progress_noDataRes="@mipmap/blv_no_data_white"
         app:progress_noNetworkRes="@mipmap/blv_network_error_white"
         app:refreshEnable="true"
-        app:refreshNetworkText="check your network and try again \n asdhasjdhbajs \n aasdasdfads"
+
+        app:refreshNetworkText="check your network and try again"
         app:refreshNoDataText="@string/refresh"
         app:refreshTextColor="#b7b7b7"
+
+        app:loading_width="match_of_drawer"
+        app:loading_height="match_of_drawer"
+        app:no_data_width="match_of_drawer"
+        app:no_data_height="match_of_drawer"
+        app:network_error_width="match_of_drawer"
+        app:network_error_height="match_of_drawer"
+
         app:refreshTextSize="16sp"
+        app:rotate_Duration="2000"
+        app:rotate_loadingRes="@mipmap/blv_loading_white"
+        app:rotate_noDataRes="@mipmap/blv_no_data_white"
+        app:rotate_noNetworkRes="@mipmap/blv_network_error_white"
         app:shownMode="fo" />
 
     <!--    app:rotate_loadingRes="@mipmap/blv_loading_white"-->
