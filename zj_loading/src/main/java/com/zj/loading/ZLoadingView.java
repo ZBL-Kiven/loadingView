@@ -92,6 +92,8 @@ public abstract class ZLoadingView<L extends View, N extends View, E extends Vie
         super.onFinishInflate();
         onViewInflated();
         setMode(modeDefault, true);
+        setClipChildren(false);
+        setClipToPadding(false);
     }
 
     private BaseLoadingValueAnimator valueAnimator;
@@ -256,11 +258,18 @@ public abstract class ZLoadingView<L extends View, N extends View, E extends Vie
         tvRefresh = f(R.id.blv_tvRefresh);
         blvChildBg = f(R.id.blv_child_bg);
         blvFlDrawer = f(R.id.blv_fl_drawer);
+        if (drawerWidth <= 0) {
+            drawerWidth = Math.max(loadingWidth, Math.max(noDataWidth, netErrWidth));
+        }
+        if (drawerHeight <= 0) {
+            drawerHeight = Math.max(loadingHeight, Math.max(noDataHeight, netErrHeight));
+        }
         if (drawerWidth > 0 && drawerHeight > 0) {
             ViewGroup.LayoutParams lp = blvFlDrawer.getLayoutParams();
             lp.width = drawerWidth;
             lp.height = drawerHeight;
             blvFlDrawer.setLayoutParams(lp);
+            initDrawerCenter();
         }
         disPlayViews = new HashMap<>();
         disPlayViews.put(modeDefault, 0.0f);
@@ -286,6 +295,21 @@ public abstract class ZLoadingView<L extends View, N extends View, E extends Vie
         if (modeDefault != DisplayMode.NORMAL && modeDefault != DisplayMode.NONE) {
             OverLapMode defaultMode = getMode(shownModeDefault);
             resetBackground(defaultMode);
+        }
+    }
+
+    private void initDrawerCenter() {
+        int pl = this.getPaddingLeft();
+        int pt = this.getPaddingTop();
+        int pr = this.getPaddingRight();
+        int pb = this.getPaddingBottom();
+
+        /*The Drawer centered setting needs to be moved up (Padding) to center the bottom, and the Padding correction that has been set needs to be considered.*/
+        if (pt > drawerHeight) {
+            this.setPadding(pl, pt - drawerHeight, pr, pb);
+        } else {
+            int offset = pt - drawerHeight;
+            this.setPadding(pl, 0, pr, -offset);
         }
     }
 
@@ -613,6 +637,14 @@ public abstract class ZLoadingView<L extends View, N extends View, E extends Vie
         if (isInEditMode() && blvChildBg != null) {
             setContentBgSize(true);
         }
+    }
+
+    @Override
+    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+        super.onLayout(changed, left, top, right, bottom);
+        int pt = getPaddingTop();
+        int pb = getPaddingBottom();
+        float paddingOffset = pt - pb;
     }
 
     public static class BaseLoadingValueAnimator extends ValueAnimator {

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -14,29 +15,34 @@
         android:layout_height="0dp"
         android:layout_gravity="center_horizontal" />
 
-    <RelativeLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/blv_cl_content"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:layout_gravity="center">
+        android:layout_gravity="center"
+        android:clipChildren="false"
+        android:clipToPadding="false">
 
         <FrameLayout
             android:id="@+id/blv_fl_drawer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_above="@id/blv_tvHint"
-            android:layout_centerHorizontal="true" />
+            android:layout_marginBottom="8dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/blv_tvHint"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:layout_marginTop="8dp"
-            android:gravity="center"
             android:textColor="#777"
             android:textSize="14sp"
             android:visibility="invisible"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/blv_fl_drawer"
             tools:text="loading"
             tools:visibility="visible" />
 
@@ -44,13 +50,14 @@
             android:id="@+id/blv_tvRefresh"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/blv_tvHint"
-            android:layout_centerHorizontal="true"
             android:layout_marginTop="4dp"
             android:gravity="center"
             android:textColor="@android:color/darker_gray"
             android:textSize="12sp"
             android:visibility="invisible"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/blv_tvHint"
             tools:text="loading description"
             tools:visibility="visible" />
 
@@ -58,13 +65,14 @@
             android:id="@+id/blv_btnRefresh"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/blv_tvRefresh"
-            android:layout_centerHorizontal="true"
             android:layout_marginTop="10dp"
             android:visibility="invisible"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/blv_tvRefresh"
             tools:ignore="TouchTargetSizeCheck"
             tools:text="refresh"
             tools:visibility="visible" />
 
-    </RelativeLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </merge>

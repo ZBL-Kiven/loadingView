@@ -17,4 +17,5 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation project(":zj_loading")
     implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation 'com.android.support.constraint:constraint-layout:2.0.4'
 }
