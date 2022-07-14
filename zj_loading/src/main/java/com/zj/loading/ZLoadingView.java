@@ -13,6 +13,7 @@ import android.os.Message;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -319,7 +320,8 @@ public abstract class ZLoadingView<L extends View, N extends View, E extends Vie
             loading = inflateLoadingView(loadingWidth, loadingHeight);
             assert loading != null;
             loading.setId(R.id.blv_loading_stub);
-            ViewGroup.LayoutParams lp = resetLayoutParams(loading, loadingWidth, loadingHeight);
+            FrameLayout.LayoutParams lp = resetLayoutParams(loading, loadingWidth, loadingHeight);
+
             blvFlDrawer.addView(loading, lp);
             loading.setVisibility(View.GONE);
         }
@@ -341,11 +343,12 @@ public abstract class ZLoadingView<L extends View, N extends View, E extends Vie
         }
     }
 
-    private ViewGroup.LayoutParams resetLayoutParams(View view, int width, int height) {
-        ViewGroup.LayoutParams lp = view.getLayoutParams();
-        if (lp == null) lp = new ViewGroup.LayoutParams(0, 0);
+    private FrameLayout.LayoutParams resetLayoutParams(View view, int width, int height) {
+        FrameLayout.LayoutParams lp = (LayoutParams) view.getLayoutParams();
+        if (lp == null) lp = new FrameLayout.LayoutParams(0, 0);
         lp.width = width == ViewGroup.LayoutParams.MATCH_PARENT ? drawerWidth : width;
         lp.height = height == ViewGroup.LayoutParams.MATCH_PARENT ? drawerHeight : height;
+        lp.gravity = Gravity.CENTER_HORIZONTAL | Gravity.BOTTOM;
         return lp;
     }
 
