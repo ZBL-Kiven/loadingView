@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_gravity="center"
     android:clipChildren="false"
-    android:clipToPadding="false">
+    android:clipToPadding="false"
+    tools:parentTag="android.widget.FrameLayout">
 
     <View
         android:id="@+id/blv_child_bg"
@@ -14,7 +14,7 @@
         android:layout_height="0dp"
         android:layout_gravity="center_horizontal" />
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <RelativeLayout
         android:id="@+id/blv_cl_content"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
@@ -24,46 +24,19 @@
             android:id="@+id/blv_fl_drawer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_constraintBottom_toTopOf="@id/blv_tvHint"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent">
-
-            <ViewStub
-                android:id="@+id/blv_loading_stub"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal|bottom"
-                android:inflatedId="@+id/blv_loading" />
-
-            <ViewStub
-                android:id="@+id/blv_vNoData_stub"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal|bottom"
-                android:inflatedId="@+id/blv_vNoData" />
-
-            <ViewStub
-                android:id="@+id/blv_vNoNetwork_stub"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal|bottom"
-                android:inflatedId="@+id/blv_vNoNetwork" />
-
-        </FrameLayout>
+            android:layout_above="@id/blv_tvHint"
+            android:layout_centerHorizontal="true" />
 
         <TextView
             android:id="@+id/blv_tvHint"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
             android:layout_marginTop="8dp"
             android:gravity="center"
-            android:textColor="#FFF"
+            android:textColor="#777"
             android:textSize="14sp"
             android:visibility="invisible"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
             tools:text="loading"
             tools:visibility="visible" />
 
@@ -71,14 +44,13 @@
             android:id="@+id/blv_tvRefresh"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_below="@id/blv_tvHint"
+            android:layout_centerHorizontal="true"
             android:layout_marginTop="4dp"
             android:gravity="center"
             android:textColor="@android:color/darker_gray"
             android:textSize="12sp"
             android:visibility="invisible"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/blv_tvHint"
             tools:text="loading description"
             tools:visibility="visible" />
 
@@ -86,13 +58,13 @@
             android:id="@+id/blv_btnRefresh"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_below="@id/blv_tvRefresh"
+            android:layout_centerHorizontal="true"
             android:layout_marginTop="10dp"
             android:visibility="invisible"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/blv_tvRefresh"
+            tools:ignore="TouchTargetSizeCheck"
             tools:text="refresh"
             tools:visibility="visible" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
-</FrameLayout>
+    </RelativeLayout>
+</merge>

@@ -40,8 +40,6 @@ public class MainActivity extends AppCompatActivity {
         ImageView ivBg = findViewById(R.id.iv_bg);
         TextView tvOverride = findViewById(R.id.tv_override);
 
-        blvView.setMode(DisplayMode.LOADING.delay(1000));
-
         mode.add(0, DisplayMode.LOADING);
         mode.add(1, DisplayMode.NO_DATA);
         mode.add(2, DisplayMode.NO_NETWORK);

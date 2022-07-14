@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
@@ -11,11 +12,10 @@ import android.os.Looper;
 import android.os.Message;
 import android.text.TextUtils;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.util.TypedValue;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewStub;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.TextView;
@@ -23,11 +23,40 @@ import android.widget.TextView;
 import java.util.HashMap;
 import java.util.Map;
 
+
 /**
  * @author ZJJ on 2018/7/3.
  */
 @SuppressWarnings("unused")
 public abstract class ZLoadingView<L extends View, N extends View, E extends View> extends FrameLayout {
+
+    private TextView tvHint, tvRefresh;
+    protected L loading;
+    protected N noData;
+    protected E noNetwork;
+    private DisplayMode oldMode = DisplayMode.NONE;
+    private Map<DisplayMode, Float> disPlayViews;
+    private View rootView;
+    private ViewGroup contentView, blvFlDrawer;
+    private View blvChildBg;
+    private float cbLeftPadding, cbTopPadding, cbRightPadding, cbBottomPadding;
+    private Button btnRefresh;
+    private OnTapListener refresh;
+    private OnChangeListener onMode;
+    private final Handler handler;
+    private Drawable bg, bgOnContent, btnBg;
+    private int animateDuration = 0;
+    private int shownModeDefault = 0;
+    private int hintTextColor, refreshTextColor, btnTextColor;
+    private String loadingHint = "", noDataHint = "", networkErrorHint = "", refreshNoDataText = "", refreshNetworkText = "", btnText = "";
+    private float hintTextSize, refreshTextSize, btnTextSize;
+    private float maxRefreshTextWidth, maxHintTextWidth;
+    private int maxRefreshTextLines, maxHintTextLines;
+    private boolean refreshEnable = true;
+    private boolean btnEnable = false;
+    private boolean refreshEnableWithView = false;
+    protected DisplayMode modeDefault = DisplayMode.NONE;
+    private int drawerWidth, drawerHeight, loadingWidth, loadingHeight, noDataWidth, noDataHeight, netErrWidth, netErrHeight;
 
     public ZLoadingView(Context context) {
         this(context, null, 0);
@@ -49,61 +78,33 @@ public abstract class ZLoadingView<L extends View, N extends View, E extends Vie
             @Override
             public void handleMessage(Message msg) {
                 if (msg.what == 998) {
-                    setContentBgSize();
+                    setContentBgSize(false);
                 } else {
                     onViewVisibilityChanged(msg.what, msg.arg1 == 0);
                 }
             }
         };
-        post(new Runnable() {
-            @Override
-            public void run() {
-                initAbsViews();
-            }
-        });
+        initAbsViews();
     }
 
-    private TextView tvHint, tvRefresh;
-    private ViewStub noDataStub, noNetworkStub, loadingStub;
-    protected L loading;
-    protected N noData;
-    protected E noNetwork;
-    private DisplayMode oldMode = DisplayMode.NONE;
-    private Map<DisplayMode, Float> disPlayViews;
-    private View rootView;
-    private ViewGroup contentView;
-    private View blvChildBg;
-    private float cbLeftPadding, cbTopPadding, cbRightPadding, cbBottomPadding;
-    private Button btnRefresh;
-    private OnTapListener refresh;
-    private OnChangeListener onMode;
-    private final Handler handler;
-    private Drawable bg, bgOnContent, btnBg;
-    private int animateDuration = 0;
-    private int shownModeDefault = 0;
-    private int hintTextColor, refreshTextColor, btnTextColor;
-    private String loadingHint = "", noDataHint = "", networkErrorHint = "", refreshNoDataText = "", refreshNetworkText = "", btnText = "";
-    private float hintTextSize, refreshTextSize, btnTextSize;
-    private float maxRefreshTextWidth, maxHintTextWidth;
-    private int maxRefreshTextLines, maxHintTextLines;
-    private boolean refreshEnable = true;
-    private boolean btnEnable = false;
-    private boolean refreshEnableWithView = false;
-    private DisplayMode modeDefault = DisplayMode.NONE;
-    private int drawerWidth, drawerHeight, loadingWidth, loadingHeight, noDataWidth, noDataHeight, netErrWidth, netErrHeight;
+    @Override
+    protected void onFinishInflate() {
+        super.onFinishInflate();
+        onViewInflated();
+        setMode(modeDefault, true);
+    }
 
     private BaseLoadingValueAnimator valueAnimator;
 
-    public abstract void inflateLoadingView(ViewStub stub, float loadingWidth, float loadingHeight);
+    public abstract L inflateLoadingView(float loadingWidth, float loadingHeight);
 
-    public abstract void inflateNoDataView(ViewStub stub, float noDataWidth, float noDataHeight);
+    public abstract N inflateNoDataView(float noDataWidth, float noDataHeight);
 
-    public abstract void inflateNetworkErrorView(ViewStub stub, float netErrWidth, float netErrHeight);
+    public abstract E inflateNetworkErrorView(float netErrWidth, float netErrHeight);
 
     protected abstract void onViewInflated();
 
-    public void onViewVisibilityChanged(int viewId, boolean visible) {
-    }
+    public void onViewVisibilityChanged(int viewId, boolean visible) { }
 
     public void setRefreshEnable(boolean enable) {
         this.refreshEnable = enable;
@@ -128,14 +129,27 @@ public abstract class ZLoadingView<L extends View, N extends View, E extends Vie
      */
     public void setOnTapListener(OnTapListener refresh) {
         this.refresh = refresh;
-        (btnEnable ? btnRefresh : this).setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (refreshEnable && refreshEnableWithView && ZLoadingView.this.refresh != null) {
-                    ZLoadingView.this.refresh.onTap();
+        if (btnEnable) {
+            this.setOnClickListener(null);
+            btnRefresh.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (refreshEnable && refreshEnableWithView && ZLoadingView.this.refresh != null) {
+                        ZLoadingView.this.refresh.onTap();
+                    }
                 }
-            }
-        });
+            });
+        } else {
+            btnRefresh.setOnClickListener(null);
+            this.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (refreshEnable && refreshEnableWithView && ZLoadingView.this.refresh != null) {
+                        ZLoadingView.this.refresh.onTap();
+                    }
+                }
+            });
+        }
     }
 
     /**
@@ -235,16 +249,13 @@ public abstract class ZLoadingView<L extends View, N extends View, E extends Vie
     }
 
     private void initView(Context context) {
-        rootView = View.inflate(context, R.layout.loading_view, this);
+        rootView = LayoutInflater.from(context).inflate(R.layout.loading_view, this, true);
         contentView = f(R.id.blv_cl_content);
-        noDataStub = f(R.id.blv_vNoData_stub);
-        noNetworkStub = f(R.id.blv_vNoNetwork_stub);
-        loadingStub = f(R.id.blv_loading_stub);
         tvHint = f(R.id.blv_tvHint);
         btnRefresh = f(R.id.blv_btnRefresh);
         tvRefresh = f(R.id.blv_tvRefresh);
         blvChildBg = f(R.id.blv_child_bg);
-        View blvFlDrawer = f(R.id.blv_fl_drawer);
+        blvFlDrawer = f(R.id.blv_fl_drawer);
         if (drawerWidth > 0 && drawerHeight > 0) {
             ViewGroup.LayoutParams lp = blvFlDrawer.getLayoutParams();
             lp.width = drawerWidth;
@@ -279,38 +290,39 @@ public abstract class ZLoadingView<L extends View, N extends View, E extends Vie
     }
 
     private void initAbsViews() {
+        blvFlDrawer.removeAllViews();
         if (loading == null) {
-            int inflated = loadingStub.getInflatedId();
-            inflateLoadingView(loadingStub, loadingWidth, loadingHeight);
-            loading = f(inflated);
-            resetLayoutParams(loading, loadingWidth, loadingHeight);
+            loading = inflateLoadingView(loadingWidth, loadingHeight);
+            assert loading != null;
+            loading.setId(R.id.blv_loading_stub);
+            ViewGroup.LayoutParams lp = resetLayoutParams(loading, loadingWidth, loadingHeight);
+            blvFlDrawer.addView(loading, lp);
             loading.setVisibility(View.GONE);
         }
         if (noData == null) {
-            int inflated = noDataStub.getInflatedId();
-            inflateNoDataView(noDataStub, noDataWidth, noDataHeight);
-            noData = f(inflated);
-            resetLayoutParams(noData, noDataWidth, noDataHeight);
+            noData = inflateNoDataView(noDataWidth, noDataHeight);
+            assert noData != null;
+            noData.setId(R.id.blv_noData_stub);
+            ViewGroup.LayoutParams lp = resetLayoutParams(noData, noDataWidth, noDataHeight);
+            blvFlDrawer.addView(noData, lp);
             noData.setVisibility(View.GONE);
         }
         if (noNetwork == null) {
-            int inflated = noNetworkStub.getInflatedId();
-            inflateNetworkErrorView(noNetworkStub, netErrWidth, netErrHeight);
-            noNetwork = f(inflated);
-            resetLayoutParams(noNetwork, netErrWidth, netErrHeight);
+            noNetwork = inflateNetworkErrorView(netErrWidth, netErrHeight);
+            assert noNetwork != null;
+            noNetwork.setId(R.id.blv_noNetWork_stub);
+            ViewGroup.LayoutParams lp = resetLayoutParams(noNetwork, netErrWidth, netErrHeight);
+            blvFlDrawer.addView(noNetwork, lp);
             noNetwork.setVisibility(View.GONE);
-        }
-        onViewInflated();
-        if (isInEditMode()) {
-            setMode(modeDefault, true);
         }
     }
 
-    private void resetLayoutParams(View view, int width, int height) {
+    private ViewGroup.LayoutParams resetLayoutParams(View view, int width, int height) {
         ViewGroup.LayoutParams lp = view.getLayoutParams();
-        lp.width = width == ViewGroup.LayoutParams.WRAP_CONTENT ? drawerWidth : width;
+        if (lp == null) lp = new ViewGroup.LayoutParams(0, 0);
+        lp.width = width == ViewGroup.LayoutParams.MATCH_PARENT ? drawerWidth : width;
         lp.height = height == ViewGroup.LayoutParams.MATCH_PARENT ? drawerHeight : height;
-        view.setLayoutParams(lp);
+        return lp;
     }
 
     private void resetBackground(OverLapMode mode) {
@@ -393,11 +405,11 @@ public abstract class ZLoadingView<L extends View, N extends View, E extends Vie
         handler.removeCallbacksAndMessages(null);
         long delay = mode.delay;
         if (valueAnimator != null) valueAnimator.end();
-        if (delay > 0) {
+        if (!isSetNow && delay > 0) {
             handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    ZLoadingView.this.setLoadingMode(mode, hint, subHint, overlapMode, isSetNow);
+                    ZLoadingView.this.setLoadingMode(mode, hint, subHint, overlapMode, false);
                 }
             }, delay);
         } else {
@@ -566,7 +578,7 @@ public abstract class ZLoadingView<L extends View, N extends View, E extends Vie
         handler.sendMessage(msg);
     }
 
-    private void setContentBgSize() {
+    private void setContentBgSize(boolean inEdit) {
         int left = Integer.MAX_VALUE, top = Integer.MAX_VALUE, right = 0, bottom = 0;
         for (int i = 0; i < contentView.getChildCount(); i++) {
             View v = contentView.getChildAt(i);
@@ -577,8 +589,10 @@ public abstract class ZLoadingView<L extends View, N extends View, E extends Vie
                 bottom = Math.max(v.getBottom(), bottom);
             }
         }
-        if (left + right + top + bottom > 0) {
+        if (inEdit || left + right + top + bottom > 0) {
+            int i = left + right + top + bottom;
             LayoutParams lp = (LayoutParams) blvChildBg.getLayoutParams();
+            if (lp == null) return;
             float pw = cbLeftPadding + cbRightPadding;
             lp.width = (right - left) + (int) pw;
             lp.height = (bottom - top) + (int) (cbBottomPadding + cbTopPadding);
@@ -590,7 +604,14 @@ public abstract class ZLoadingView<L extends View, N extends View, E extends Vie
             }
             lp.setMargins((int) lpd, (int) (top - cbTopPadding), (int) rpd, 0);
             blvChildBg.setLayoutParams(lp);
-            Log.e("------- ", "" + left + "   " + top + "   " + right + "   " + bottom);
+        }
+    }
+
+    @Override
+    protected void dispatchDraw(Canvas canvas) {
+        super.dispatchDraw(canvas);
+        if (isInEditMode() && blvChildBg != null) {
+            setContentBgSize(true);
         }
     }
 
@@ -631,8 +652,7 @@ public abstract class ZLoadingView<L extends View, N extends View, E extends Vie
                 public void onAnimationEnd(Animator animation) {
                     curDuration = 0;
                     if (isCancel) return;
-                    if (listener != null)
-                        listener.onAnimEnd(animation, curMode, overLapMode);
+                    if (listener != null) listener.onAnimEnd(animation, curMode, overLapMode);
                 }
 
                 @Override

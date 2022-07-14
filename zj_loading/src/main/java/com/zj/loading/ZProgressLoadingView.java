@@ -3,7 +3,7 @@ package com.zj.loading;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
-import android.view.ViewStub;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 
@@ -44,20 +44,17 @@ public final class ZProgressLoadingView extends ZLoadingView<ProgressBar, ImageV
     }
 
     @Override
-    public void inflateLoadingView(ViewStub stub, float drawerWidth, float drawerHeight) {
-        stub.setLayoutResource(progressLayout);
-        stub.inflate();
+    public ProgressBar inflateLoadingView(float drawerWidth, float drawerHeight) {
+        return (ProgressBar) View.inflate(getContext(), R.layout.blv_simple_pb, null);
     }
 
     @Override
-    public void inflateNoDataView(ViewStub stub, float drawerWidth, float drawerHeight) {
-        stub.setLayoutResource(R.layout.blv_simple_iv);
-        stub.inflate();
+    public ImageView inflateNoDataView(float drawerWidth, float drawerHeight) {
+        return (ImageView) View.inflate(getContext(), R.layout.blv_simple_iv, null);
     }
 
     @Override
-    public void inflateNetworkErrorView(ViewStub stub, float drawerWidth, float drawerHeight) {
-        stub.setLayoutResource(R.layout.blv_simple_iv);
-        stub.inflate();
+    public ImageView inflateNetworkErrorView(float drawerWidth, float drawerHeight) {
+        return (ImageView) View.inflate(getContext(), R.layout.blv_simple_iv, null);
     }
 }

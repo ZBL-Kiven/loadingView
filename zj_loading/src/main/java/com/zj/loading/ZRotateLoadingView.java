@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
 import android.view.View;
-import android.view.ViewStub;
 import android.view.animation.Animation;
 import android.widget.ImageView;
 
@@ -14,9 +13,7 @@ public final class ZRotateLoadingView extends ZLoadingView<ImageView, ImageView,
     private int noDataRes = -1, noNetworkRes = -1, loadingRes = -1, duration = 1000;
     private ValueAnimator anim;
 
-    public ZRotateLoadingView(Context context) {
-        this(context, null, 0);
-    }
+    public ZRotateLoadingView(Context context) { this(context, null, 0); }
 
     public ZRotateLoadingView(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
@@ -24,7 +21,7 @@ public final class ZRotateLoadingView extends ZLoadingView<ImageView, ImageView,
 
     public ZRotateLoadingView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        initAttrs(context, attrs);
+        this.initAttrs(context, attrs);
     }
 
     private void initAttrs(Context context, AttributeSet attrs) {
@@ -51,21 +48,18 @@ public final class ZRotateLoadingView extends ZLoadingView<ImageView, ImageView,
     }
 
     @Override
-    public void inflateLoadingView(ViewStub stub, float loadingWidth, float loadingHeight) {
-        stub.setLayoutResource(R.layout.blv_simple_iv);
-        stub.inflate();
+    public ImageView inflateLoadingView(float loadingWidth, float loadingHeight) {
+        return (ImageView) View.inflate(getContext(), R.layout.blv_simple_iv, null);
     }
 
     @Override
-    public void inflateNoDataView(ViewStub stub, float noDataWidth, float noDataHeight) {
-        stub.setLayoutResource(R.layout.blv_simple_iv);
-        stub.inflate();
+    public ImageView inflateNoDataView(float noDataWidth, float noDataHeight) {
+        return (ImageView) View.inflate(getContext(), R.layout.blv_simple_iv, null);
     }
 
     @Override
-    public void inflateNetworkErrorView(ViewStub stub, float netErrWidth, float netErrHeight) {
-        stub.setLayoutResource(R.layout.blv_simple_iv);
-        stub.inflate();
+    public ImageView inflateNetworkErrorView(float netErrWidth, float netErrHeight) {
+        return (ImageView) View.inflate(getContext(), R.layout.blv_simple_iv, null);
     }
 
     @Override
