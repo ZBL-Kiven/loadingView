@@ -24,6 +24,29 @@
         <attr name="maxHintTextWidth" format="dimension" />
         <attr name="maxHintTextLines" format="integer" />
         <attr name="refreshNoDataText" format="string" />
+        <attr name="refreshTextLineSpacing" format="dimension" />
+
+        <attr name="hintTextStyle" format="enum">
+            <enum name="normal" value="0" />
+            <enum name="bold" value="1" />
+            <enum name="italic" value="2" />
+            <enum name="bold_italic" value="3" />
+        </attr>
+
+        <attr name="refreshTextStyle" format="enum">
+            <enum name="normal" value="0" />
+            <enum name="bold" value="1" />
+            <enum name="italic" value="2" />
+            <enum name="bold_italic" value="3" />
+        </attr>
+
+        <attr name="btnTextStyle" format="enum">
+            <enum name="normal" value="0" />
+            <enum name="bold" value="1" />
+            <enum name="italic" value="2" />
+            <enum name="bold_italic" value="3" />
+        </attr>
+
         <attr name="shownMode" format="enum">
             <enum name="overlap" value="0" />
             <enum name="floating" value="1" />
@@ -70,6 +93,17 @@
             <enum name="NO_DATA" value="2" />
             <enum name="NET_WORK_ERROR" value="3" />
         </attr>
+
+        <attr name="viewGravity" format="flags">
+            <flag name="top" value="0x30" />
+            <flag name="bottom" value="0x50" />
+            <flag name="left" value="0x03" />
+            <flag name="right" value="0x05" />
+            <flag name="center_vertical" value="0x10" />
+            <flag name="center_horizontal" value="0x01" />
+            <flag name="center" value="0x11" />
+        </attr>
+
     </declare-styleable>
 
     <style name="mProgress_circle">

@@ -31,7 +31,6 @@
         app:drawerHeight="55dp"
         app:drawerWidth="55dp"
         app:hintColor="#e3e3e3"
-
         app:hintTextSize="22sp"
         app:loadingText="@string/loading"
         app:loading_height="match_of_drawer"

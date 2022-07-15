@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Looper;
@@ -51,7 +52,8 @@ public abstract class ZLoadingView<L extends View, N extends View, E extends Vie
     private int hintTextColor, refreshTextColor, btnTextColor;
     private String loadingHint = "", noDataHint = "", networkErrorHint = "", refreshNoDataText = "", refreshNetworkText = "", btnText = "";
     private float hintTextSize, refreshTextSize, btnTextSize;
-    private float maxRefreshTextWidth, maxHintTextWidth;
+    private int viewGravity, hintTextStyle, refreshTextStyle, btnTextStyle;
+    private float maxRefreshTextWidth, maxHintTextWidth, refreshTextLineSpacing;
     private int maxRefreshTextLines, maxHintTextLines;
     private boolean refreshEnable = true;
     private boolean btnEnable = false;
@@ -174,6 +176,9 @@ public abstract class ZLoadingView<L extends View, N extends View, E extends Vie
                 loadingHint = array.getString(R.styleable.ZLoadingView_loadingText);
                 noDataHint = array.getString(R.styleable.ZLoadingView_noDataText);
                 networkErrorHint = array.getString(R.styleable.ZLoadingView_networkErrorText);
+                hintTextStyle = array.getInt(R.styleable.ZLoadingView_hintTextStyle, -1);
+                refreshTextStyle = array.getInt(R.styleable.ZLoadingView_refreshTextStyle, -1);
+                btnTextStyle = array.getInt(R.styleable.ZLoadingView_btnTextStyle, -1);
                 shownModeDefault = array.getInt(R.styleable.ZLoadingView_shownMode, 0);
                 refreshEnable = array.getBoolean(R.styleable.ZLoadingView_refreshEnable, true);
                 refreshNoDataText = array.getString(R.styleable.ZLoadingView_refreshNoDataText);
@@ -186,6 +191,8 @@ public abstract class ZLoadingView<L extends View, N extends View, E extends Vie
                 maxRefreshTextLines = array.getInt(R.styleable.ZLoadingView_maxRefreshTextLines, -1);
                 maxHintTextWidth = array.getDimension(R.styleable.ZLoadingView_maxHintTextWidth, -1);
                 maxHintTextLines = array.getInt(R.styleable.ZLoadingView_maxHintTextLines, -1);
+                refreshTextLineSpacing = array.getDimension(R.styleable.ZLoadingView_refreshTextLineSpacing, -1f);
+                viewGravity = array.getInt(R.styleable.ZLoadingView_viewGravity, -1);
 
                 int lw = 0;
                 try {
@@ -275,6 +282,9 @@ public abstract class ZLoadingView<L extends View, N extends View, E extends Vie
         disPlayViews = new HashMap<>();
         disPlayViews.put(modeDefault, 0.0f);
         tvHint.setTextSize(TypedValue.COMPLEX_UNIT_PX, hintTextSize);
+        setFontStyle(tvHint, hintTextStyle);
+        setFontStyle(tvRefresh, refreshTextStyle);
+        setFontStyle(btnRefresh, btnTextStyle);
         if (hintTextColor != 0) tvHint.setTextColor(hintTextColor);
         if (maxHintTextWidth > 0) tvHint.setMaxWidth((int) maxHintTextWidth);
         if (maxHintTextLines > 0) {
@@ -283,6 +293,7 @@ public abstract class ZLoadingView<L extends View, N extends View, E extends Vie
         }
         if (refreshTextColor != 0) tvRefresh.setTextColor(refreshTextColor);
         tvRefresh.setTextSize(TypedValue.COMPLEX_UNIT_PX, refreshTextSize);
+        if (refreshTextLineSpacing >= 0) tvRefresh.setLineSpacing(refreshTextLineSpacing, 1f);
         if (maxRefreshTextWidth > 0) tvRefresh.setMaxWidth((int) maxRefreshTextWidth);
         if (maxRefreshTextLines > 0) {
             tvRefresh.setMaxLines(maxRefreshTextLines);
@@ -296,6 +307,25 @@ public abstract class ZLoadingView<L extends View, N extends View, E extends Vie
         if (modeDefault != DisplayMode.NORMAL && modeDefault != DisplayMode.NONE) {
             OverLapMode defaultMode = getMode(shownModeDefault);
             resetBackground(defaultMode);
+        }
+    }
+
+    private void setFontStyle(TextView v, int style) {
+        Typeface typeface = Typeface.DEFAULT;
+        if (style >= 0) {
+            int fs;
+            switch (style) {
+                case Typeface.BOLD:
+                case Typeface.ITALIC:
+                case Typeface.NORMAL:
+                case Typeface.BOLD_ITALIC:
+                    fs = style;
+                    break;
+                default:
+                    throw new IllegalArgumentException("The font must follow the specified size and be in one of Typeface.BOLD, Typeface.ITALIC, Typeface.NORMAL, Typeface.BOLD_ITALIC");
+            }
+            typeface = Typeface.create(typeface, fs);
+            v.setTypeface(typeface);
         }
     }
 
@@ -321,7 +351,6 @@ public abstract class ZLoadingView<L extends View, N extends View, E extends Vie
             assert loading != null;
             loading.setId(R.id.blv_loading_stub);
             FrameLayout.LayoutParams lp = resetLayoutParams(loading, loadingWidth, loadingHeight);
-
             blvFlDrawer.addView(loading, lp);
             loading.setVisibility(View.GONE);
         }
@@ -348,7 +377,7 @@ public abstract class ZLoadingView<L extends View, N extends View, E extends Vie
         if (lp == null) lp = new FrameLayout.LayoutParams(0, 0);
         lp.width = width == ViewGroup.LayoutParams.MATCH_PARENT ? drawerWidth : width;
         lp.height = height == ViewGroup.LayoutParams.MATCH_PARENT ? drawerHeight : height;
-        lp.gravity = Gravity.CENTER_HORIZONTAL | Gravity.BOTTOM;
+        lp.gravity = viewGravity >= 0 ? viewGravity : Gravity.CENTER_HORIZONTAL | Gravity.BOTTOM;
         return lp;
     }
 
