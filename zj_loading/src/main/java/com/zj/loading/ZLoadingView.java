@@ -54,6 +54,7 @@ public abstract class ZLoadingView<L extends View, N extends View, E extends Vie
     private float hintTextSize, refreshTextSize, btnTextSize;
     private int viewGravity, hintTextStyle, refreshTextStyle, btnTextStyle;
     private float maxRefreshTextWidth, maxHintTextWidth, refreshTextLineSpacing;
+    private float hintMarginTop, hintMarginBottom, btnMarginTop;
     private int maxRefreshTextLines, maxHintTextLines;
     private boolean refreshEnable = true;
     private boolean btnEnable = false;
@@ -193,6 +194,9 @@ public abstract class ZLoadingView<L extends View, N extends View, E extends Vie
                 maxHintTextLines = array.getInt(R.styleable.ZLoadingView_maxHintTextLines, -1);
                 refreshTextLineSpacing = array.getDimension(R.styleable.ZLoadingView_refreshTextLineSpacing, -1f);
                 viewGravity = array.getInt(R.styleable.ZLoadingView_viewGravity, -1);
+                hintMarginTop = array.getDimension(R.styleable.ZLoadingView_hintMarginTop, -1);
+                hintMarginBottom = array.getDimension(R.styleable.ZLoadingView_hintMarginBottom, -1);
+                btnMarginTop = array.getDimension(R.styleable.ZLoadingView_btnMarginTop, -1);
 
                 int lw = 0;
                 try {
@@ -279,6 +283,9 @@ public abstract class ZLoadingView<L extends View, N extends View, E extends Vie
             blvFlDrawer.setLayoutParams(lp);
             initDrawerCenter();
         }
+        buildNewMargins(tvHint, -1, (int) hintMarginTop, -1, -1);
+        buildNewMargins(tvRefresh, -1, (int) hintMarginBottom, -1, -1);
+        buildNewMargins(btnRefresh, -1, (int) btnMarginTop, -1, -1);
         disPlayViews = new HashMap<>();
         disPlayViews.put(modeDefault, 0.0f);
         tvHint.setTextSize(TypedValue.COMPLEX_UNIT_PX, hintTextSize);
@@ -326,6 +333,19 @@ public abstract class ZLoadingView<L extends View, N extends View, E extends Vie
             }
             typeface = Typeface.create(typeface, fs);
             v.setTypeface(typeface);
+        }
+    }
+
+    @SuppressWarnings("SameParameterValue")
+    private void buildNewMargins(View v, int l, int t, int r, int b) {
+        if (l + t + r + b > -4) {
+            MarginLayoutParams flp = (MarginLayoutParams) v.getLayoutParams();
+            int mt = flp.topMargin;
+            int mb = flp.bottomMargin;
+            int ml = flp.bottomMargin;
+            int mr = flp.bottomMargin;
+            flp.setMargins(l >= 0 ? l : ml, t >= 0 ? t : mt, r >= 0 ? r : mr, b >= 0 ? b : mb);
+            v.setLayoutParams(flp);
         }
     }
 

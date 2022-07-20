@@ -25,6 +25,9 @@
         <attr name="maxHintTextLines" format="integer" />
         <attr name="refreshNoDataText" format="string" />
         <attr name="refreshTextLineSpacing" format="dimension" />
+        <attr name="hintMarginTop" format="dimension" />
+        <attr name="hintMarginBottom" format="dimension" />
+        <attr name="btnMarginTop" format="dimension" />
 
         <attr name="hintTextStyle" format="enum">
             <enum name="normal" value="0" />

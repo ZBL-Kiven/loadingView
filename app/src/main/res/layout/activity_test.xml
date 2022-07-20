@@ -23,21 +23,36 @@
         android:layout_gravity="bottom"
         app:backgroundFill="#a000"
         app:backgroundUnderTheContent="@drawable/loading_float_background"
+
+        app:btnBackground="#faac"
+        app:btnEnable="true"
+
+        app:btnMarginTop="8dp"
+
+        app:btnText="Refresh"
+        app:btnTextColor="#fff"
+        app:btnTextSize="14sp"
+
         app:changeAnimDuration="600"
         app:contentPadding="12dp"
         app:contentPaddingEnd="45dp"
         app:contentPaddingStart="45dp"
-
         app:drawerHeight="55dp"
         app:drawerWidth="55dp"
         app:hintColor="#e3e3e3"
+
+        app:hintMarginBottom="10dp"
+        app:hintMarginTop="8dp"
+
         app:hintTextSize="22sp"
         app:loadingText="@string/loading"
         app:loading_height="match_of_drawer"
+
         app:loading_width="match_of_drawer"
         app:maxRefreshTextLines="2"
         app:maxRefreshTextWidth="255dp"
-        app:modeDefault="LOADING"
+
+        app:modeDefault="NO_DATA"
         app:networkErrorText="@string/noNetwork"
         app:network_error_height="match_of_drawer"
         app:network_error_width="match_of_drawer"
