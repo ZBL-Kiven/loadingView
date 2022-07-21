@@ -35,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_test);
-        blvView = findViewById(R.id.bld_view);
+        blvView = findViewById(R.id.blv_view);
         Button btView = findViewById(R.id.bt_view);
         ImageView ivBg = findViewById(R.id.iv_bg);
         TextView tvOverride = findViewById(R.id.tv_override);

@@ -18,7 +18,6 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
@@ -42,7 +41,7 @@ public abstract class ZLoadingView<L extends View, N extends View, E extends Vie
     private ViewGroup contentView, blvFlDrawer;
     private View blvChildBg;
     private float cbLeftPadding, cbTopPadding, cbRightPadding, cbBottomPadding;
-    private Button btnRefresh;
+    private TextView btnRefresh;
     private OnTapListener refresh;
     private OnChangeListener onMode;
     private final Handler handler;
@@ -55,6 +54,7 @@ public abstract class ZLoadingView<L extends View, N extends View, E extends Vie
     private int viewGravity, hintTextStyle, refreshTextStyle, btnTextStyle;
     private float maxRefreshTextWidth, maxHintTextWidth, refreshTextLineSpacing;
     private float hintMarginTop, hintMarginBottom, btnMarginTop;
+    private float btnPl, btnPt, btnPr, btnPb;
     private int maxRefreshTextLines, maxHintTextLines;
     private boolean refreshEnable = true;
     private boolean btnEnable = false;
@@ -197,6 +197,10 @@ public abstract class ZLoadingView<L extends View, N extends View, E extends Vie
                 hintMarginTop = array.getDimension(R.styleable.ZLoadingView_hintMarginTop, -1);
                 hintMarginBottom = array.getDimension(R.styleable.ZLoadingView_hintMarginBottom, -1);
                 btnMarginTop = array.getDimension(R.styleable.ZLoadingView_btnMarginTop, -1);
+                btnPl = array.getDimension(R.styleable.ZLoadingView_btnPaddingLeft, -1);
+                btnPt = array.getDimension(R.styleable.ZLoadingView_btnPaddingTop, -1);
+                btnPr = array.getDimension(R.styleable.ZLoadingView_btnPaddingRight, -1);
+                btnPb = array.getDimension(R.styleable.ZLoadingView_btnPaddingBottom, -1);
 
                 int lw = 0;
                 try {
@@ -275,6 +279,13 @@ public abstract class ZLoadingView<L extends View, N extends View, E extends Vie
         }
         if (drawerHeight <= 0) {
             drawerHeight = Math.max(loadingHeight, Math.max(noDataHeight, netErrHeight));
+        }
+        if (btnPl + btnPt + btnPr + btnPb > -4) {
+            int pl = btnRefresh.getPaddingStart();
+            int pt = btnRefresh.getPaddingTop();
+            int pr = btnRefresh.getPaddingRight();
+            int pb = btnRefresh.getPaddingBottom();
+            btnRefresh.setPadding(btnPl >= 0 ? (int) btnPl : pl, btnPt >= 0 ? (int) btnPt : pt, btnPr >= 0 ? (int) btnPr : pr, btnPb >= 0 ? (int) btnPb : pb);
         }
         if (drawerWidth > 0 && drawerHeight > 0) {
             ViewGroup.LayoutParams lp = blvFlDrawer.getLayoutParams();

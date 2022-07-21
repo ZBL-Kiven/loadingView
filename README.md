@@ -162,7 +162,7 @@ blv?.setRefreshListener {
 }
 
 //是否在无数据或无网络等容错情形出现 "点击页面以重新尝试" 的提示和刷新回调；默认 true 显示 
-bld_view?.setRefreshEnable(boolean enable)
+blv_view?.setRefreshEnable(boolean enable)
 
 //延迟生效。延迟效果可在未生效时被新的状态或新的延时取缔。
 blv?.setMode(DisplayMode.delay(Long))

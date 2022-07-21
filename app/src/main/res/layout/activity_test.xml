@@ -17,18 +17,16 @@
         tools:ignore="ContentDescription" />
 
     <com.zj.loading.ZRotateLoadingView
-        android:id="@+id/bld_view"
+        android:id="@+id/blv_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="bottom"
         app:backgroundFill="#a000"
         app:backgroundUnderTheContent="@drawable/loading_float_background"
 
-        app:btnBackground="#faac"
+        app:btnBackground="@color/colorPrimary"
         app:btnEnable="true"
-
         app:btnMarginTop="8dp"
-
         app:btnText="Refresh"
         app:btnTextColor="#fff"
         app:btnTextSize="14sp"

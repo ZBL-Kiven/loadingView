@@ -28,6 +28,10 @@
         <attr name="hintMarginTop" format="dimension" />
         <attr name="hintMarginBottom" format="dimension" />
         <attr name="btnMarginTop" format="dimension" />
+        <attr name="btnPaddingLeft" format="dimension" />
+        <attr name="btnPaddingRight" format="dimension" />
+        <attr name="btnPaddingTop" format="dimension" />
+        <attr name="btnPaddingBottom" format="dimension" />
 
         <attr name="hintTextStyle" format="enum">
             <enum name="normal" value="0" />
