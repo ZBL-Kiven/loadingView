@@ -5,20 +5,12 @@
     <item name="blv_noNetWork_stub" type="id" />
 
     <declare-styleable name="ZLoadingView">
-        <attr name="backgroundFill" format="color|reference" />
-        <attr name="backgroundUnderTheContent" format="color|reference" />
-        <attr name="contentPadding" format="dimension" />
-        <attr name="contentPaddingStart" format="dimension" />
-        <attr name="contentPaddingEnd" format="dimension" />
-        <attr name="contentPaddingTop" format="dimension" />
-        <attr name="contentPaddingBottom" format="dimension" />
         <attr name="hintColor" format="color|reference" />
         <attr name="refreshTextColor" format="color|reference" />
         <attr name="loadingText" format="string" />
         <attr name="noDataText" format="string" />
         <attr name="networkErrorText" format="string" />
         <attr name="refreshNetworkText" format="string" />
-        <attr name="changeAnimDuration" format="integer" />
         <attr name="maxRefreshTextWidth" format="dimension" />
         <attr name="maxRefreshTextLines" format="integer" />
         <attr name="maxHintTextWidth" format="dimension" />
@@ -54,16 +46,10 @@
             <enum name="bold_italic" value="3" />
         </attr>
 
-        <attr name="shownMode" format="enum">
-            <enum name="overlap" value="0" />
-            <enum name="floating" value="1" />
-            <enum name="fo" value="2" />
-        </attr>
         <attr name="btnBackground" format="color|reference" />
         <attr name="btnTextColor" format="color|reference" />
         <attr name="btnText" format="string|reference" />
         <attr name="btnEnable" format="boolean" />
-        <attr name="refreshEnable" format="boolean" />
         <attr name="btnTextSize" format="dimension" />
         <attr name="refreshTextSize" format="dimension" />
         <attr name="hintTextSize" format="dimension" />
@@ -95,11 +81,6 @@
 
         <attr name="drawerWidth" format="dimension" />
         <attr name="drawerHeight" format="dimension" />
-        <attr name="modeDefault" format="enum">
-            <enum name="LOADING" value="1" />
-            <enum name="NO_DATA" value="2" />
-            <enum name="NET_WORK_ERROR" value="3" />
-        </attr>
 
         <attr name="viewGravity" format="flags">
             <flag name="top" value="0x30" />
@@ -109,6 +90,32 @@
             <flag name="center_vertical" value="0x10" />
             <flag name="center_horizontal" value="0x01" />
             <flag name="center" value="0x11" />
+        </attr>
+
+    </declare-styleable>
+
+
+    <declare-styleable name="ZLoading">
+        <attr name="backgroundFill" format="color|reference" />
+        <attr name="backgroundUnderTheContent" format="color|reference" />
+        <attr name="refreshEnable" format="boolean" />
+        <attr name="changeAnimDuration" format="integer" />
+        <attr name="contentPadding" format="dimension" />
+        <attr name="contentPaddingStart" format="dimension" />
+        <attr name="contentPaddingEnd" format="dimension" />
+        <attr name="contentPaddingTop" format="dimension" />
+        <attr name="contentPaddingBottom" format="dimension" />
+
+        <attr name="shownMode" format="enum">
+            <enum name="overlap" value="0" />
+            <enum name="floating" value="1" />
+            <enum name="fo" value="2" />
+        </attr>
+
+        <attr name="modeDefault" format="enum">
+            <enum name="LOADING" value="1" />
+            <enum name="NO_DATA" value="2" />
+            <enum name="NET_WORK_ERROR" value="3" />
         </attr>
 
     </declare-styleable>
